@@ -18,4 +18,4 @@ It's Free To Use!
 Tested: Delphi 7 & Delphi 2010
 
 BR,
-quygia128  
+quygia128
