@@ -3,10 +3,6 @@ del *.~*
 del "Resources Backup*"
 dcc32 -Q OD2DelphiPlugin.dpr -$O+
 del *.~* /s
-<<<<<<< HEAD
-del *.dcu /s
-=======
->>>>>>> git  comit
 del *.ddp /s
 del *.dti /s
 del *.dof /s

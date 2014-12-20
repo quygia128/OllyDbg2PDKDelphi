@@ -16,19 +16,11 @@ var
 
 const
   PLUGIN_NAME: PWChar = 'OD2-Delphi-Plugin';
-<<<<<<< HEAD
-  PLUGIN_VERS: PWChar = '201.01';
-  PLUGIN_AUTH: PWChar = 'quygia128';
-  PLUGIN_SITE: PWChar = 'http://cin1team.biz';
-  PLUGIN_BLOG: PWChar = 'http://crackertool.blogspot.com';
-  PLUGIN_DATE: PWChar = '10.16.2013';
-=======
   PLUGIN_VERS: PWChar = '201.02';
   PLUGIN_AUTH: PWChar = 'quygia128';
   PLUGIN_SITE: PWChar = 'http://cin1team.biz';
   PLUGIN_BLOG: PWChar = 'http://crackertool.blogspot.com';
   PLUGIN_DATE: PWChar = '04.23.2014';
->>>>>>> git  comit
 
 ////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////// Plugin Menu ///////////////////////////////
@@ -73,14 +65,11 @@ Begin
       if index in[1..2] then begin
         //Result:= MENU_SHORTCUT;
       end;
-<<<<<<< HEAD
-=======
       case index of
         3: begin
           //Result:= MENU_ABSENT;
         end;
       end;
->>>>>>> git  comit
     end;
     MENU_EXECUTE: begin
       Result:= MENU_NOREDRAW;
@@ -90,15 +79,6 @@ Begin
         end;
         2: begin
           Suspendallthreads;
-<<<<<<< HEAD
-          FillChar(info,SizeOf(info),#0);
-          Swprintf(info,'%s v%s'#10#10, PLUGIN_NAME, PLUGIN_VERS);
-          n:= StrlenW(info,TEXTLEN);
-          Swprintf(info+n,'Coded by %s'#10'Home: %s'#10#10,PLUGIN_AUTH, PLUGIN_SITE);
-          n:= StrlenW(info,TEXTLEN);
-          Swprintf(info+n,'Special thanks to TQN ~ phpbb3 ~ BOB'#10#10);
-          MessageBoxW(oddata.hwollymain^,info,'About',MB_OK);
-=======
           FillChar(szInfo,SizeOf(szInfo),#0);
           Swprintf(szInfo,'%s v%s'#10#10, PLUGIN_NAME, PLUGIN_VERS);
           n:= StrlenW(szInfo,TEXTLEN);
@@ -106,7 +86,6 @@ Begin
           n:= StrlenW(szInfo,TEXTLEN);
           Swprintf(szInfo+n,'Special thanks to TQN ~ phpbb3 ~ BOB'#10#10);
           MessageBoxW(plugin2.hwollymain^,szInfo,'About',MB_OK);
->>>>>>> git  comit
           Resumeallthreads;
         end;
       end;
@@ -191,11 +170,6 @@ End;
 // clean up and return -1. On success, it must return 0.
 function  ODBG2_Plugininit: LongInt; cdecl;
 Begin
-<<<<<<< HEAD
-  OD2hModule:= GetModuleHandleA(nil);
-  oddata:= Getoddata(OD2hModule);
-=======
->>>>>>> git  comit
   Addtolist(0,1,'- %s v%s & PDK 4 Delphi by %s. Compiled Date: %s', PLUGIN_NAME, PLUGIN_VERS, PLUGIN_AUTH, PLUGIN_DATE);
   Addtolist(0,2,' - Home: %s',PLUGIN_SITE);
   Addtolist(0,2,' - Blog: %s',PLUGIN_BLOG);

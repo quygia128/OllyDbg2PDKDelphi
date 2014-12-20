@@ -40,11 +40,7 @@ unit Plugin2;
 // Porting from Cplus header to unit delphi by quygia128                      //
 // Email: quygia128@gmail.com                                                 //
 // Home: http://cin1team.biz                                                  //
-<<<<<<< HEAD
-// Last edit on: 11.24.2013                                                   //
-=======
 // Last edit on: 04.23.2014 by TQN(ThangCuAnh)                                //
->>>>>>> git  comit
 // Special thanks & Credits go to TQN ~ phpbb3 ~ BOB                          //
 // Greetz to all my friends                                                   //
 // -----                                                                      //
@@ -55,180 +51,6 @@ unit Plugin2;
 
 interface
 
-<<<<<<< HEAD
-Uses
-	Windows;
-	{$A1}                                 // Struct byte alignment
-	{$WARN UNSAFE_CODE OFF}
-	{$WARN UNSAFE_TYPE OFF}
-	{$WARN UNSAFE_CAST OFF}
-  
-Const
-	PLUGIN_VERSION =$02010001;            // Version 2.01.0001 of plugin interface
-	TEXTLEN        =256;                  // Max length of text string incl. '\0'
-	DATALEN        =4096;                 // Max length of data record (max 65535)
-	ARGLEN         =1024;                 // Max length of argument string
-	MAXMULTIPATH   =8192;                 // Max length of multiple selection
-	SHORTNAME      =32;                   // Max length of short or module name
-	MAXPATH        =MAX_PATH;
-	OLLYDBG        ='ollydbg.exe';
-
-Type
-	Char           = AnsiChar;            // Delphi 6,7 SRC Work With Delphi 2009, 2010, XE.x
-	PChar          = PAnsiChar;           // Delphi 6,7 SRC Work With Delphi 2009, 2010, XE.x
-	UChar          = BYTE;
-	UShort         = WORD;
-	UInteger       = Cardinal;
-	ULong          = LongWord;
-	Long           = Extended;
-	PWChar         = PWideChar;
-	PUChar         = ^UChar;
-	PULong         = ^ULong;
-	PUint8         = ^Uint8;
-	Uint8          = array[0..0] of Byte;
-
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////// SERVICE FUNCTIONS ///////////////////////////////
-Const
-// Flags returned by functions Istext.../Israre...
-PLAINASCII     =$01;            // Plain ASCII character
-DIACRITICAL    =$02;            // Diacritical character
-RAREASCII      =$10;            // Rare ASCII character
-// Flags used by Memalloc() and Virtalloc(). Note that Virtalloc() alwyas
-// initializes memory to zero.
-REPORT         =$0000;          // Report memory allocation errors
-SILENT         =$0001;          // Don't report allocation errors
-ZEROINIT       =$0002;          // Initialize memory to 0
-
-CONT_BROADCAST =$0000;          // Continue sending msg to MDI windows
-STOP_BROADCAST =$1234;          // Stop sending message to MDI windows
-// Symbol decoding mode, used by Decodethreadname(), Decodeaddress() and
-// Decoderelativeoffset().
-// Bits that determine when to decode and comment name at all.
-DM_VALID       =$00000001;      // Only decode if memory exists
-DM_INMOD       =$00000002;      // Only decode if in module
-DM_SAMEMOD     =$00000004;      // Only decode if in same module
-DM_SYMBOL      =$00000008;      // Only decode if direct symbolic name
-DM_NONTRIVIAL  =$00000010;      // Only decode if nontrivial form
-// Bits that control name format.
-DM_BINARY      =$00000100;      // Don't use symbolic form
-DM_DIFBIN      =$00000200;      // No symbolic form if different module
-DM_WIDEFORM    =$00000400;      // Extended form (8 digits by hex)
-DM_CAPITAL     =$00000800;      // First letter in uppercase if possible
-DM_OFFSET      =$00001000;      // Add 'OFFSET' if data
-DM_JUMPIMP     =$00002000;      // Check if points to JMP to import
-DM_DYNAMIC     =$00004000;      // Check if points to JMP to DLL
-DM_ORDINAL     =$00008000;      // Add ordinal to thread's name
-// Bits that control whether address is preceded with module name.
-DM_NOMODNAME   =$00000000;      // Never add module name
-DM_DIFFMODNAME =$00010000;      // Add name only if different module
-DM_MODNAME     =$00020000;      // Always add module name
-// Bits that control comments.
-DM_STRING      =$00100000;      // Check if pointer to ASCII or UNICODE
-DM_STRPTR      =$00200000;      // Check if points to pointer to text
-DM_FOLLOW      =$00400000;      // Check if follows to different symbol
-DM_ENTRY       =$00800000;      // Check if unnamed entry to subroutine
-DM_EFORCE      =$01000000;      // Check if named entry, too
-DM_DIFFMOD     =$02000000;      // Check if points to different module
-DM_RELOFFS     =$04000000;      // Check if points inside subroutine
-DM_ANALYSED    =$08000000;      // Check if points to decoded data
-
-// Standard commenting mode. Note: DM_DIFFMOD and DM_RELOFFS are not included.
-DM_COMMENT     =(DM_STRING OR DM_STRPTR OR DM_FOLLOW OR DM_ENTRY OR DM_ANALYSED);
-
-// Address decoding mode, used by Labeladdress().
-ADDR_SYMMASK   =$00000003;      // Mask to extract sym presentation mode
-ADDR_HEXSYM    =$00000000;      // Hex, followed by symbolic name
-ADDR_SYMHEX    =$00000001;      // Symbolic name, followed by hex
-ADDR_SINGLE    =$00000002;      // Symbolic name, or hex if none
-ADDR_HEXONLY   =$00000003;      // Only hexadecimal address
-ADDR_MODNAME   =$00000004;      // Add module name to symbol
-ADDR_FORCEMOD  =$00000008;      // (ADDR_SINGLE) Always add module name
-ADDR_GRAYHEX   =$00000010;      // Gray hex
-ADDR_HILSYM    =$00000020;      // Highlight symbolic name
-ADDR_NODEFMEP  =$00000100;      // Do not show <ModuleEntryPoint>
-ADDR_BREAK     =$00000200;      // Mark as unconditional breakpoint
-ADDR_CONDBRK   =$00000400;      // Mark as conditional breakpoint
-ADDR_DISBRK    =$00000800;      // Mark as disabled breakpoint
-ADDR_EIP       =$00001000;      // Mark as actual EIP
-ADDR_CHECKEIP  =$00002000;      // Mark as EIP if EIP of CPU thread
-ADDR_SHOWNULL  =$00004000;      // Display address 0
-
-// Mode bits and return value of Browsefilename().
-BRO_MODEMASK   =$F0000000;      // Mask to extract browsing mode
-BRO_FILE       =$00000000;      // Get file name
-BRO_EXE        =$10000000;      // Get name of executable
-BRO_TEXT       =$20000000;      // Get name of text log
-BRO_GROUP      =$30000000;      // Get one or several obj or lib files
-BRO_MULTI      =$40000000;      // Get one or several files
-BRO_SAVE       =$08000000;      // Get name in save mode
-BRO_SINGLE     =$00800000;      // Single file selected
-BRO_MULTIPLE   =$00400000;      // Multiple files selected
-BRO_APPEND     =$00080000;      // Append to existing file
-BRO_ACTUAL     =$00040000;      // Add actual contents
-BRO_TABS       =$00020000;      // Separate columns with tabs
-BRO_GROUPMASK  =$000000FF;      // Mask to extract groups
-BRO_GROUP1     =$00000001;      // Belongs to group 1
-BRO_GROUP2     =$00000002;      // Belongs to group 2
-BRO_GROUP3     =$00000004;      // Belongs to group 3
-BRO_GROUP4     =$00000008;      // Belongs to group 4
-
-// String decoding modes.
-DS_DIR         =0;              // Direct quote
-DS_ASM         =1;              // Assembler style
-DS_C           =2;              // C style
-
-Type
-
-TCompare       = function(p1:Pointer;p2:Pointer): LongInt; cdecl;
-TCompareex     = function(p1:Pointer;p2:Pointer;n:ULong): LongInt; cdecl;
-
-procedure    Error(format:PWChar); cdecl; varargs; external OLLYDBG name 'Error';
-procedure    Conderror(cond:PWChar;title:PWChar;format:PWChar); cdecl; varargs; external OLLYDBG name 'Conderror';
-function     Condyesno(cond:LongInt;title:PWChar;format:PWChar): LongInt; cdecl; varargs; external OLLYDBG name 'Condyesno';
-function     Stringfromini(section:PWChar;key:PWChar;s:PWChar;length:LongInt): LongInt; cdecl; external OLLYDBG name 'Stringfromini';
-function     Filefromini(key:PWChar;name:PWChar;defname:PWChar): LongInt; cdecl; external OLLYDBG name 'Filefromini';
-function     Getfromini(ifile:PWChar;section:PWChar;key:PWChar;format:PWChar): LongInt; cdecl; varargs; external OLLYDBG name 'Getfromini';
-function     Writetoini(ifile:PWChar;section:PWChar;key:PWChar;format:PWChar): LongInt; cdecl; varargs; external OLLYDBG name 'Writetoini';
-function     Filetoini(key:PWChar;name:PWChar): LongInt; cdecl; external OLLYDBG name 'Filetoini';
-procedure    Deleteinisection(ifile:PWChar;section:PWChar); cdecl; external OLLYDBG name 'Deleteinisection';
-function     Getfromsettings(key:PWChar;defvalue:LongInt): LongInt; cdecl; external OLLYDBG name 'Getfromsettings';
-procedure    Addtosettings(key:PWChar;value:LongInt); cdecl; external OLLYDBG name 'Addtosettings';
-procedure    Replacegraphs(mode:LongInt;s:PWChar;mask:PUChar;select:LongInt;n:LongInt); cdecl; external OLLYDBG name 'Replacegraphs';
-
-function     Unicodetoascii(const w:PWChar;nw:LongInt;s:char;ns:LongInt): LongInt; cdecl; external OLLYDBG name 'Unicodetoascii';
-function     Asciitounicode(const s:PAnsiChar;ns:LongInt;w:PWChar;nw:LongInt): LongInt; cdecl; external OLLYDBG name 'Asciitounicode';
-function     Unicodetoutf(const  w:PWChar;nw:LongInt;t:PAnsiChar;nt:LongInt): LongInt; cdecl; external OLLYDBG name 'Unicodetoutf';
-function     Utftounicode(const t:PAnsiChar;nt:LongInt;w:PWChar;nw:LongInt): LongInt; cdecl; external OLLYDBG name 'Utftounicode';
-function     Unicodebuffertoascii(hunicode:HGLOBAL):HGLOBAL; cdecl; external OLLYDBG name 'Unicodebuffertoascii';
-function     Iszero(data:PWChar;n:LongInt): LongInt; cdecl; external OLLYDBG name 'Iszero';
-function     Guidtotext(guid:PUChar;s:PWChar): LongInt; cdecl; external OLLYDBG name 'Guidtotext';
-function     Swprintf(s:PWChar;format:PWChar): LongInt; cdecl; varargs; external OLLYDBG name 'Swprintf';
-function     Memalloc(size:ULong;flags:LongInt): Pointer; cdecl; external OLLYDBG name 'Memalloc';
-procedure    Memfree(data:Pointer); cdecl; external OLLYDBG name 'Memfree';
-function  	 Mempurge(data:Pointer;count:LongInt;itemsize:ULong;newcount:LongInt): Pointer; cdecl; external OLLYDBG name 'Mempurge';
-function     Memdouble(data:Pointer;pcount:LongInt;itemsize:ULong;failed:LongInt;flags:LongInt): Pointer; cdecl; external OLLYDBG name 'Memdouble';
-function     Virtalloc(size:ULong;flags:LongInt): Pointer; cdecl; external OLLYDBG name 'Virtalloc';
-procedure    Virtfree(data:Pointer); cdecl; external OLLYDBG name 'Virtfree';
-function     Broadcast(msg:UINT;wp:WPARAM;lp:LPARAM): LongInt; cdecl; external OLLYDBG name 'Broadcast';
-function     Browsefilename(title:PWChar;name:PWChar;args:PWChar;
-                            currdir:PWChar;defext:PWChar;hwnd:HWND;mode:LongInt): LongInt; cdecl; external OLLYDBG name 'Browsefilename';
-function     Browsedirectory(hw:HWND;comment:PWChar;dir:PWChar): LongInt; cdecl; external OLLYDBG name 'Browsedirectory';
-procedure    Relativizepath(path:PWChar); cdecl; external OLLYDBG name 'Relativizepath';
-procedure    Absolutizepath(path:PWChar); cdecl; external OLLYDBG name 'Absolutizepath';
-function     Confirmoverwrite(path:PWChar): LongInt; cdecl; external OLLYDBG name 'Confirmoverwrite';
-function     Labeladdress(text:PWChar;addr:ULong;reladdr:ULong;relreg:LongInt;
-                          index:LongInt;mask:PUChar;select:PInteger;mode:ULong): LongInt; cdecl; external OLLYDBG name 'Labeladdress';
-function     Simpleaddress(text:PWChar;addr:ULong;mask:PUChar;select:PInteger): LongInt; cdecl; external OLLYDBG name 'Simpleaddress';					
-procedure    Heapsort(data:Pointer;const count:integer;const size:LongInt;compare:TCompare); cdecl; external OLLYDBG name 'Heapsort';
-procedure    Heapsortex(data:Pointer;const count:integer;const size:LongInt;compareex:TCompareex;lp:ulong); cdecl; external OLLYDBG name 'Heapsortex';
-function     _Readfile(path:PWChar;fixsize:ULong;psize:PULong):PUChar; cdecl; external OLLYDBG name 'Readfile';
-function     Devicenametodosname(devname:PWChar;dosname:PWChar): LongInt; cdecl; external OLLYDBG name 'Devicenametodosname';
-function     Filenamefromhandle(hfile:HWND;path:PWChar): LongInt; cdecl; external OLLYDBG name 'Filenamefromhandle';
-procedure    Quicktimerstart(timer:LongInt); cdecl; external OLLYDBG name 'Quicktimerstart';
-procedure    Quicktimerstop(timer:LongInt); cdecl; external OLLYDBG name 'Quicktimerstop';
-procedure    Quicktimerflush(timer:LongInt); cdecl; external OLLYDBG name 'Quicktimerflush';
-=======
 uses
   Windows;
 
@@ -411,42 +233,10 @@ procedure Quicktimerstart(timer: Integer); cdecl; external OLLYDBG name 'Quickti
 procedure Quicktimerstop(timer: Integer); cdecl; external OLLYDBG name 'Quicktimerstop';
 procedure Quicktimerflush(timer: Integer); cdecl; external OLLYDBG name 'Quicktimerflush';
 
->>>>>>> git  comit
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////// FAST SERVICE ROUTINES WRITTEN IN ASSEMBLER //////////////////
 
-<<<<<<< HEAD
-function     StrcopyA(dest:PAnsiChar;n:LongInt;const src:PAnsiChar): LongInt; cdecl; external OLLYDBG name 'StrcopyA';
-function     StrcopyW(dest:PWChar;n:LongInt;const src:PWChar): LongInt; cdecl; external OLLYDBG name 'StrcopyW';
-function     StrlenA(const src:PAnsiChar;n:LongInt): LongInt; cdecl; external OLLYDBG name 'StrlenA';
-function     StrlenW(const src:PWChar;n:LongInt ): LongInt; cdecl; external OLLYDBG name 'StrlenW';
-function     HexprintA(s:PAnsiChar;u:ULong): LongInt; cdecl; external OLLYDBG name 'HexprintA';
-function     HexprintW(s:PWChar;u:ULong): LongInt; cdecl; external OLLYDBG name 'HexprintW';
-function     Hexprint4A(s:PAnsiChar;u:ULong): LongInt; cdecl; external OLLYDBG name 'Hexprint4A';
-function     Hexprint4W(s:PWChar;u:ULong): LongInt; cdecl; external OLLYDBG name 'Hexprint4W';
-function     Hexprint8A(s:PAnsiChar;u:ULong): LongInt; cdecl; external OLLYDBG name 'Hexprint8A';
-function     Hexprint8W(s:PWChar;u:ULong): LongInt; cdecl; external OLLYDBG name 'Hexprint8W';
-function     SignedhexA(s:PAnsiChar;u:ULong): LongInt; cdecl; external OLLYDBG name 'SignedhexA';
-function     SignedhexW(s:PWChar;u:ULong): LongInt; cdecl; external OLLYDBG name 'SignedhexW';
-procedure    Swapmem(base:Pointer;size:LongInt;i1:LongInt;i2:LongInt); cdecl; external OLLYDBG name 'Swapmem';
-function     HexdumpA(s:PAnsiChar;code:PUChar;n:LongInt): LongInt; cdecl; external OLLYDBG name 'HexdumpA';
-function     HexdumpW(s:PWChar;code:PUChar;n:LongInt): LongInt; cdecl; external OLLYDBG name 'HexdumpW';
-function     Bitcount(u:ULong): LongInt; cdecl; external OLLYDBG name 'Bitcount';
-
-function  	 SetcaseA(s:PAnsiChar): Pointer; cdecl; external OLLYDBG name 'SetcaseA';
-function 	   SetcaseW(s:PWChar): Pointer; cdecl; external OLLYDBG name 'SetcaseW';
-function     StrcopycaseA(dest:PAnsiChar; n:LongInt;const src:PAnsiChar): LongInt; cdecl; external OLLYDBG name 'StrcopycaseA';
-function     StrcopycaseW(dest:PWChar; n:LongInt;const src:PWChar): LongInt; cdecl; external OLLYDBG name 'StrcopycaseW';
-function     StrnstrA(data:PAnsiChar;ndata:LongInt;pat:PAnsiChar;npat:LongInt;ignorecase:LongInt): LongInt; cdecl; external OLLYDBG name 'StrnstrA';                  
-function     StrnstrW(data:PWChar; ndata:LongInt;pat:PWChar; npat:LongInt; ignorecase:LongInt): LongInt; cdecl; external OLLYDBG name 'StrnstrW';                      
-//function     StrcmpW(const s1:PWChar;const s2:PWChar): LongInt; cdecl; external OLLYDBG name 'StrcmpW';
-function     Div64by32(low:ULong;hi:ULong;zdiv:ULong): LongInt; cdecl; external OLLYDBG name 'Div64by32';
-function     CRCcalc(datacopy:PUChar;datasize:ULong): LongInt; cdecl; external OLLYDBG name 'CRCcalc';
-procedure    Getcpuidfeatures; cdecl; external OLLYDBG name 'Getcpuidfeatures';
-procedure    Maskfpu; cdecl; external OLLYDBG name 'Maskfpu';
-procedure    Clearfpu; cdecl; external OLLYDBG name 'Clearfpu';
-=======
 function  StrcopyA(dest: PAChar; n: Integer; const src: PAChar): Integer; cdecl; external OLLYDBG name 'StrcopyA';
 function  StrcopyW(dest: PWChar; n: Integer; const src: PWChar): Integer; cdecl; external OLLYDBG name 'StrcopyW';
 function  StrlenA(const src: PAChar; n: Integer): Integer; cdecl; external OLLYDBG name 'StrlenA';
@@ -479,69 +269,10 @@ function  Getcpuidfeatures: Integer; cdecl; external OLLYDBG name 'Getcpuidfeatu
 procedure Maskfpu; cdecl; external OLLYDBG name 'Maskfpu';
 procedure Clearfpu; cdecl; external OLLYDBG name 'Clearfpu';
 
->>>>>>> git  comit
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////// DATA COMPRESSION AND DECOMPRESSION //////////////////////
 
-<<<<<<< HEAD
-function   	 Compress(bufin:PUChar;nbufin:ULong;bufout:PUChar;nbufout:ULong): ULong; cdecl; external OLLYDBG name 'Compress';
-function     Getoriginaldatasize(bufin:PUChar;nbufin:ULong): ULong; cdecl; external OLLYDBG name 'Getoriginaldatasize';
-function     Decompress(bufin:PUChar;nbufin:ULong;bufout:PUChar;nbufout:ULong): ULong; cdecl; external OLLYDBG name 'Decompress';
-////////////////////////////////////////////////////////////////////////////////
-/////////////////////// TAGGED DATA FILES AND RESOURCES ////////////////////////
-Const
-
-MI_SIGNATURE    =$00646F4D;      // Signature of tagged file
-MI_VERSION      =$7265560A;      // File version
-MI_FILENAME     =$6C69460A;      // Record with full name of executable
-MI_FILEINFO     =$7263460A;      // Length, date, CRC (t_fileinfo)
-MI_DATA         =$7461440A;      // Name or data (t_nameinfo)
-MI_CALLBRA      =$7262430A;      // Call brackets
-MI_LOOPBRA      =$72624C0A;      // Loop brackets
-MI_PROCDATA     =$6372500A;      // Procedure data (set of t_procdata)
-MI_INT3BREAK    =$336E490A;      // INT3 breakpoint (t_bpoint)
-MI_MEMBREAK     =$6D70420A;      // Memory breakpoint (t_bpmem)
-MI_HWBREAK      =$6870420A;      // Hardware breakpoint (t_bphard)
-MI_ANALYSIS     =$616E410A;      // Record with analysis data
-MI_SWITCH       =$6977530A;      // Switch (addr+dt_switch)
-MI_CASE         =$7361430A;      // Case (addr+dt_case)
-MI_MNEMO        =$656E4D0A;      // Decoding of mnemonics (addr+dt_mnemo)
-MI_JMPDATA      =$74644A0A;      // Jump data
-MI_NETSTREAM    =$74734E0A;      // .NET streams (t_netstream)
-MI_METADATA     =$74644D0A;      // .NET MetaData tables (t_metadata)
-MI_BINSAV       =$7673420A;      // Last entered binary search patterns
-MI_MODDATA      =$61624D0A;      // Module base, size and path
-MI_PREDICT      =$6472500A;      // Predicted command execution results
-MI_LASTSAV      =$61734C0A;      // Last entered strings (t_nameinfo)
-MI_SAVEAREA     =$7661530A;      // Save area (t_savearea)
-MI_RTCOND       =$6374520A;      // Run trace pause condition
-MI_RTPROT       =$7074520A;      // Run trace protocol condition
-MI_WATCH        =$6374570A;      // Watch in watch window
-MI_LOADDLL      =$64644C0A;      // Packed loaddll.exe
-MI_PATCH        =$7461500A;      // Patch data (compressed t_patch)
-MI_PLUGIN       =$676C500A;      // Plugin prefix descriptor
-MI_END          =$646E450A;      // End of tagged file
-
-Type
-
-P_file = ^t_file;
-  T_File = packed record         // This is the FILE object
-  curp:PByte;                    // Current active pointer
-  buffer:PByte;                  // Data transfer buffer
-  level:LongInt;                 // fill/empty level of buffer
-  bsize:LongInt;                 // Buffer size
-  istemp:Word;                   // Temporary file indicator
-  flags:Word;                    // File status flags
-  hold:PWChar;                   // Ungetc char if no buffer
-  fd:UChar;                      // File descriptor
-  token:Byte;                    // Used for validity checking
-  end;
-
-T_FILETIME = record
-  dwLowDateTime:ULong;
-  dwHighDateTime:ULong;
-=======
 function  Compress(bufin: PUChar; nbufin: ULong;
             bufout: PUChar; nbufout: ULong): ULong; cdecl; external OLLYDBG name 'Compress';
 function  Getoriginaldatasize(bufin: PUChar; nbufin: ULong): ULong; cdecl; external OLLYDBG name 'Getoriginaldatasize';
@@ -596,41 +327,10 @@ type
     hold: PWChar;                           // Ungetc char if no buffer
     fd: UChar;                              // File descriptor
     token: Byte;                            // Used for validity checking
->>>>>>> git  comit
   end;
 
   p_fileinfo  = ^t_fileinfo;                // Length, date, CRC (MI_FILEINFO)
   t_fileinfo = packed record
-<<<<<<< HEAD
-  size:ULong;                    // Length of executable file
-  filetime:T_FILETIME;           // Time of last modification
-  crc:ULong;                     // CRC of executable file
-  issfx:LongInt;                 // Whether self-extractable
-  sfxentry:ULong;                // Offset of original entry after SFX
-	end;
-
-P_tagfile= ^t_tagfile;           // Descriptor of tagged file (reading)
-  t_tagfile = Packed record
-  F: Pointer;                    // File descriptor
-  filesize:ULong;                // File size
-  offset:ULong;                  // Actual offset
-  tag:ULong;                     // Tag of next accessed record
-  recsize:ULong;                 // Size of next accessed record
-	end;
-
-function    Createtaggedfile(name:PWChar;signature:PAnsiChar;version:ULong): P_file; cdecl; external OLLYDBG name 'Createtaggedfile';
-function    Savetaggedrecord(f:P_file;tag:ULong;size:ULong;data:Pointer): LongInt; cdecl; external OLLYDBG name 'Savetaggedrecord';
-function    Savepackedrecord(f:P_file;tag:ULong;size:ULong;data:Pointer): LongInt; cdecl; external OLLYDBG name 'Savepackedrecord';
-procedure   Finalizetaggedfile(f:P_file); cdecl; external OLLYDBG name 'Finalizetaggedfile';
-function    Opentaggedfile(tf:P_tagfile;name:PWChar;signature:PAnsiChar): LongInt; cdecl; external OLLYDBG name 'Opentaggedfile';
-function    Gettaggedrecordsize(tf:P_tagfile;tag:PULong;size:PULong): LongInt; cdecl; external OLLYDBG name 'Gettaggedrecordsize';
-function    Gettaggedfiledata(tf:P_tagfile;buf:Pointer;bufsize:ULong): ULong; cdecl; external OLLYDBG name 'Gettaggedfiledata';
-procedure   Closetaggedfile(tf:P_tagfile); cdecl; external OLLYDBG name 'Closetaggedfile';
-
-Type
-
-P_control = ^t_control;          // Descriptor of dialog control
-=======
     size: ULong;                            // Length of executable file
     filetime: FILETIME;                     // Time of last modification
     crc: ULong;                             // CRC of executable file
@@ -658,7 +358,6 @@ procedure Closetaggedfile(tf: p_tagfile); cdecl; external OLLYDBG name 'Closetag
 
 type
   p_control = ^t_control;                   // Descriptor of dialog control
->>>>>>> git  comit
   t_control = packed record
     _type: ULong;                           // type of control, CA_xxx
     id: Integer;                            // Control's ID or -1 if unimportant
@@ -674,62 +373,12 @@ type
 
   p_nameinfo = ^t_nameinfo;                 // Header of name/data record (MI_NAME)
   t_nameinfo = packed record
-<<<<<<< HEAD
-  offs:ULong;                    // Offset in module
-  ntype:UChar;                   // Name/data type, one of NM_xxx/DT_xxx
-	end;
-=======
     offs: ULong;                            // Offset in module
     _type: UChar;                           // Name/data type, one of NM_xxx/DT_xxx
   end;
->>>>>>> git  comit
 
   p_uddsave= ^t_uddsave;                    // .udd file descriptor used by plugins
   t_uddsave = packed record
-<<<<<<< HEAD
-  zfile:Pointer;                 // .udd file
-  uddprefix:ULong;               // .udd tag prefix
-	end;
-
-function    Pluginsaverecord(psave:P_uddsave;tag:ULong;size:ULong;data:Pointer): LongInt; cdecl; external OLLYDBG name 'Pluginsaverecord';
-function    Pluginpackedrecord(psave:P_uddsave;tag:ULong;size:ULong;data:Pointer): LongInt; cdecl; external OLLYDBG name 'Pluginpackedrecord';
-procedure   Pluginmodulechanged(addr:ULong); cdecl; external OLLYDBG name 'Pluginmodulechanged';
-function    Plugingetuniquedatatype: LongInt; cdecl; external OLLYDBG name 'Plugingetuniquedatatype';
-function    Plugintempbreakpoint(addr:ULong;bptype:ULong;forceint3:LongInt): LongInt; cdecl; external OLLYDBG name 'Plugintempbreakpoint';
-procedure   Pluginshowoptions(options:P_control); cdecl; external OLLYDBG name 'Pluginshowoptions';
-////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////// LEXICAL SCANNER ////////////////////////////////
-Const
-
-SMODE_UPCASE   =$00000001;            // Convert keywords to uppercase
-SMODE_NOEOL    =$00000010;            // Don't report SCAN_EOL, just skip it
-SMODE_NOSPEC   =$00000020;            // Don't translate specsymbols
-SMODE_EXTKEY   =$00000040;            // Allow &# and .!?%~ inside keywords
-SMODE_NOUSKEY  =$00000080;            // Underscore (_) is not part of keyword
-SMODE_NODEC    =$00000100;            // nn. is not decimal, but nn and '.'
-SMODE_NOFLOAT  =$00000200;            // nn.mm is not float, but nn, '.', mm
-SMODE_RADIX10  =$00000400;            // Default base is 10, not 16
-SMODE_ANGLES   =$00000800;            // Use angular brackets (<>) for text
-SMODE_MASK     =$00001000;            // Allow masked nibbles in SCAN_INT
-
-SCAN_EOF       =0;                    // End of data
-SCAN_EOL       =1;                    // End of line
-SCAN_KEY       =2;                    // Keyword in text
-SCAN_TEXT      =3;                    // Text string (without quotes) in text
-SCAN_INT       =4;                    // LongInt in ival or uval
-SCAN_FLOAT     =5;                    // Floating-point number in fval
-SCAN_OP        =6;                    // Operator or punctuator in ival
-SCAN_INVALID   =7;                    // Invalid character in ival
-SCAN_SYNTAX    =8;                    // Syntactical error in errmsg
-SCAN_USER      =10;                   // Base for user-defined types
-
-Type
-
-t_scan_union = record
-  case BYTE of
-  0: (ival: LongInt);                 // Scanned item as integer number
-  1: (uval: ULong);                   // Scanned item as unsigned number
-=======
     pfile: Pointer;                         // .udd file
     uddprefix: ULong;                       // .udd tag prefix
   end;
@@ -775,7 +424,6 @@ type
     case BYTE of
       0: (ival: Integer);                   // Scanned item as integer number
       1: (uval: ULong);                     // Scanned item as unsigned number
->>>>>>> git  comit
   end;
 
   p_scan = ^t_scan;
@@ -796,16 +444,10 @@ type
     _type: Integer;                         // type of last scanned item, SCAN_xxx
   end;
 
-<<<<<<< HEAD
-function     Skipspaces(ps:P_scan): LongInt; cdecl; external OLLYDBG name 'Skipspaces';
-procedure    Scan(ps:P_scan); cdecl; external OLLYDBG name 'Scan';
-function     Optostring(s:PWChar;op:LongInt): LongInt; cdecl; external OLLYDBG name 'Optostring';
-=======
 function  Skipspaces(ps: p_scan): Integer; cdecl; external OLLYDBG name 'Skipspaces';
 procedure Scan(ps: p_scan); cdecl; external OLLYDBG name 'Scan';
 function  Optostring(s: PWChar; op: Integer): Integer; cdecl; external OLLYDBG name 'Optostring';
 
->>>>>>> git  comit
 
 ////////////////////////////////////////////////////////////////////////////////
 ///////////////////////// SHORTCUTS, MENUS AND TOOLBAR /////////////////////////
@@ -1207,41 +849,6 @@ const
 
 ////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////// MAIN OLLYDBG WINDOW //////////////////////////////
-<<<<<<< HEAD
-Type
-
-t_status =(                            // Thread/process status
-  STAT_IDLE,                           // No process to debug
-  STAT_LOADING,                        // Loading new process
-  STAT_ATTACHING,                      // Attaching to the running process
-  STAT_RUNNING,                        // All threads are running
-  STAT_RUNTHR,                         // Single thread is running
-  STAT_STEPIN,                         // Stepping into, single thread
-  STAT_STEPOVER,                       // Stepping over, single thread
-  STAT_ANIMIN,                         // Animating into, single thread
-  STAT_ANIMOVER,                       // Animating over, single thread
-  STAT_TRACEIN,                        // Tracing into, single thread
-  STAT_TRACEOVER,                      // Tracing over, single thread
-  STAT_SFXRUN,                         // SFX using run trace, single thread
-  STAT_SFXHIT,                         // SFX using hit trace, single thread
-  STAT_SFXKNOWN,                       // SFX to known entry, single thread
-  STAT_TILLRET,                        // Stepping until return, single thread
-  STAT_OVERRET,                        // Stepping over return, single thread
-  STAT_TILLUSER,                       // Stepping till user code, single thread
-  STAT_PAUSING,                        // Process is requested to pause
-  STAT_PAUSED,                         // Process paused on debugging event
-  STAT_FINISHED,                       // Process is terminated but in memory
-  STAT_CLOSING                         // Process is requested to close/detach
-	);
-
-procedure    Info(format:PWChar); cdecl; varargs; external OLLYDBG name 'Info';
-procedure    _Message(addr:ULong;format:PWChar); cdecl; varargs; external OLLYDBG name 'Message';
-procedure    Tempinfo(format:PWChar); cdecl; varargs; external OLLYDBG name 'Tempinfo';
-procedure    Flash(format:PWChar); cdecl; varargs; external OLLYDBG name 'Flash';
-procedure    Progress(promille:LongInt;format:PWChar); cdecl; varargs; external OLLYDBG name 'Progress'; 
-procedure    Moveprogress(promille:LongInt); cdecl; external OLLYDBG name 'Moveprogress';
-procedure    Setstatus(newstatus:t_status); cdecl; external OLLYDBG name 'Setstatus';
-=======
 
 type
   t_status = (                              // Thread/process status
@@ -1276,7 +883,6 @@ procedure Progress(promille: Integer; format: PWChar); cdecl; varargs; external 
 procedure Moveprogress(promille: Integer); cdecl; external OLLYDBG name 'Moveprogress';
 procedure Setstatus(newstatus: t_status); cdecl; external OLLYDBG name 'Setstatus';
 
->>>>>>> git  comit
 
 ////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////// DATA FUNCTIONS ////////////////////////////////
@@ -1284,149 +890,6 @@ procedure Setstatus(newstatus: t_status); cdecl; external OLLYDBG name 'Setstatu
 // Name and data types. Do not change order, it's important! Always keep values
 // of demangled names 1 higher than originals, and NM_ALIAS higher than
 // NM_EXPORT - name search routines rely on these facts!
-<<<<<<< HEAD
-Const
-
-NM_NONAME      =$00;            // Means that name is absent
-DT_NONE        =$00;            // Ditto
-NM_LABEL       =$21;            // User-defined label
-NM_EXPORT      =$22;            // Exported name
-NM_DEEXP       =(NM_EXPORT+1);  // Demangled exported name
-DT_EORD        =(NM_EXPORT+2);  // Exported ordinal (ULong)
-NM_ALIAS       =(NM_EXPORT+3);  // Alias of NM_EXPORT
-NM_IMPORT      =$26;            // Imported name (module.function)
-NM_DEIMP       =(NM_IMPORT+1);  // Demangled imported name
-DT_IORD        =(NM_IMPORT+2);  // Imported ordinal (struct dt_iord)
-NM_DEBUG       =$29;            // Name from debug data
-NM_DEDEBUG     =(NM_DEBUG+1);   // Demangled name from debug data
-NM_ANLABEL     =$2B;            // Name added by Analyser
-NM_COMMENT     =$30;            // User-defined comment
-NM_ANALYSE     =$31;            // Comment added by Analyser
-NM_MARK        =$32;            // Important parameter
-NM_CALLED      =$33;            // Name of called function
-DT_ARG         =$34;            // Name and type of argument or data
-DT_NARG        =$35;            // Guessed number of arguments at CALL
-NM_RETTYPE     =$36;            // Type of data returned in EAX
-NM_MODCOMM     =$37;            // Automatical module comments
-NM_TRICK       =$38;            // Parentheses of tricky sequences
-DT_SWITCH      =$40;            // Switch descriptor (struct dt_switch)
-DT_CASE        =$41;            // Case descriptor (struct dt_case)
-DT_MNEMO       =$42;            // Alternative mnemonics data (dt_mnemo)
-NM_DLLPARMS    =$44;            // Parameters of Call DLL dialog
-DT_DLLDATA     =$45;            // Parameters of Call DLL dialog
-DT_DBGPROC     =$4A;            // t_function from debug, don't save!
-
-NM_INT3BASE    =$51;            // Base for INT3 breakpoint names
-NM_INT3COND    =(NM_INT3BASE+0);// INT3 breakpoint condition
-NM_INT3EXPR    =(NM_INT3BASE+1);// Expression to log at INT3 breakpoint
-NM_INT3TYPE    =(NM_INT3BASE+2);// Type used to decode expression
-NM_MEMBASE     =$54;            // Base for memory breakpoint names
-NM_MEMCOND     =(NM_MEMBASE+0); // Memory breakpoint condition
-NM_MEMEXPR     =(NM_MEMBASE+1); // Expression to log at memory break
-NM_MEMTYPE     =(NM_MEMBASE+2); // Type used to decode expression
-NM_HARDBASE    =$57;            // Base for hardware breakpoint names
-NM_HARDCOND    =(NM_HARDBASE+0);// Hardware breakpoint condition
-NM_HARDEXPR    =(NM_HARDBASE+1);// Expression to log at hardware break
-NM_HARDTYPE    =(NM_HARDBASE+2);// Type used to decode expression
-
-NM_LABELSAV    =$60;            // NSTRINGS last user-defined labels
-NM_ASMSAV      =$61;            // NSTRINGS last assembled commands
-NM_ASRCHSAV    =$62;            // NSTRINGS last assemby searches
-NM_COMMSAV     =$63;            // NSTRINGS last user-defined comments
-NM_WATCHSAV    =$64;            // NSTRINGS last watch expressions
-NM_GOTOSAV     =$65;            // NSTRINGS last GOTO expressions
-DT_BINSAV      =$66;            // NSTRINGS last binary search patterns
-NM_CONSTSAV    =$67;            // NSTRINGS last constants to search
-NM_STRSAV      =$68;            // NSTRINGS last strings to search
-NM_ARGSAV      =$69;            // NSTRINGS last arguments (ARGLEN!)
-NM_CURRSAV     =$6A;            // NSTRINGS last current dirs (MAXPATH!)
-
-NM_SEQSAV      =$6F;            // NSTRINGS last sequences (DATALEN!)
-
-NM_RTCOND1     =$70;            // First run trace pause condition
-NM_RTCOND2     =$71;            // Second run trace pause condition
-NM_RTCOND3     =$72;            // Third run trace pause condition
-NM_RTCOND4     =$73;            // Fourth run trace pause condition
-NM_RTCMD1      =$74;            // First run trace match command
-NM_RTCMD2      =$75;            // Second run trace match command
-NM_RANGE0      =$76;            // Low range limit
-NM_RANGE1      =$77;            // High range limit
-
-DT_ANYDATA     =$FF;            // Special marker, not a real data
-
-NMOFS_COND     =0;              // Offset to breakpoint condition
-NMOFS_EXPR     =1;              // Offset to breakpoint log expression
-NMOFS_TYPE     =2;              // Offset to expression decoding type
-
-
-NSWEXIT        =256;            // Max no. of switch exits, incl. default
-NSWCASE        =128;            // Max no. of cases in exit
-
-// Types of switches and switch exits.
-CASE_CASCADED  =$00000001;      // Cascaded IF
-CASE_HUGE      =$00000002;      // Huge switch, some cases are lost
-CASE_DEFAULT   =$00000004;      // Has default (is default for dt_case)
-CASE_TYPEMASK  =$00000070;      // Mask to extract case type
-CASE_ASCII     =$00000010;      // Intreprete cases as ASCII characters
-CASE_MSG       =$00000020;      // Interprete cases as WM_xxx
-CASE_EXCPTN    =$00000040;      // Interprete cases as exception codes
-CASE_SIGNED    =$00000080;      // Interprete cases as signed
-// Flags indicating alternative forms of assembler mnemonics.
-MF_JZ          =$01;            // JZ, JNZ instead of JE, JNE
-MF_JC          =$02;            // JC, JNC instead of JAE, JB
-
-Type
-
-P_iord = ^t_iord;                              // Descriptor of DT_IORD data
-  t_iord = record
-  ord:ULong;                                   // Ordinal
-  modname:array[0..SHORTNAME-1] of WChar;      // Short name of the module
-	end;
-
-P_switch = ^t_switch;                          // Switch descriptor DT_SWITCH
-  t_switch = record
-  casemin:ULong;                               // Minimal case
-  casemax:ULong;                               // Maximal case
-  ctype:ULong;                                 // Switch type, set of CASE_xxx
-  nexit:LongInt;                               // Number of exits including default
-  exitaddr:array[0..NSWEXIT-1] of ULong;       // List of exits (point to dt_case)
-	end;
-
-P_case = ^t_case;                              // Switch exit descriptor DT_CASE
-  t_case = record
-  swbase:ULong;                                // Address of a switch descriptor
-  ctype:ULong;                                 // Switch type, set of CASE_xxx
-  ncase:LongInt;                               // Number of cases (1..64, 0: default)
-  value:array[0..NSWCASE-1] of ULong;          // List of cases for exit
-	end;
-
-P_mnemo = ^t_mnemo;                            // Mnemonics decoding DT_MNEMO
-  t_mnemo = record
-  flags:UChar;                                 // Set of MF_xxx
-	end;
-
-function     Insertdata(addr:ULong;dtype:LongInt;data:pointer;datasize:ULong): LongInt; cdecl; external OLLYDBG name 'Insertdata';
-function     Finddata(addr:ULong;dtype:LongInt;data:pointer;datasize:ULong): ULong; cdecl; external OLLYDBG name 'Finddata';
-function     Finddataptr(addr:ULong;dtype:LongInt;datasize:PULong): Pointer; cdecl; external OLLYDBG name 'Finddataptr';
-procedure    Startnextdata(addr0:ULong;addr1:ULong;dtype:LongInt); cdecl; external OLLYDBG name 'Startnextdata';
-function     Findnextdata(addr:PULong;data:pointer;datasize:ULong): ULong; cdecl; external OLLYDBG name 'Findnextdata';
-procedure    Startnextdatalist(addr0:ULong;addr1:ULong;list:LongInt;n:LongInt); cdecl; external OLLYDBG name 'Startnextdatalist';
-function     Findnextdatalist(addr:ULong;dtype:LongInt;data:pointer;datasize:ULong): LongInt; cdecl; external OLLYDBG name 'Findnextdatalist';
-function     Isdataavailable(addr:ULong;dtype1:LongInt;dtype2:LongInt;dtype3:LongInt): LongInt; cdecl; external OLLYDBG name 'Isdataavailable';
-function     Isdatainrange(addr0:ULong;addr1:ULong;dtype1:LongInt;dtype2:LongInt;dtype3:LongInt): LongInt; cdecl; external OLLYDBG name 'Isdatainrange';
-procedure    Deletedatarange(addr0:ULong;addr1:ULong;dtype1:LongInt;dtype2:LongInt;dtype3:LongInt); cdecl; external OLLYDBG name 'Deletedatarange';
-procedure    Deletedatarangelist(addr0:ULong;addr1:ULong;list:LongInt;n:LongInt); cdecl; external OLLYDBG name 'Deletedatarangelist';
-function     Quickinsertdata(addr:ULong;dtype:LongInt;data:Pointer;datasize:ULong): LongInt; cdecl; external OLLYDBG name 'Quickinsertdata';
-procedure    Mergequickdata; cdecl; external OLLYDBG name 'Mergequickdata';
-function     DemanglenameW(name:PWChar;undecorated:PWChar;recurs:LongInt): LongInt; cdecl; external OLLYDBG name 'DemanglenameW';
-function     InsertnameW(addr: ULong; dtype: LongInt; s: PWChar): LongInt; cdecl; external OLLYDBG name 'InsertnameW';
-function     QuickinsertnameW(addr:ULong;dtype:LongInt;s:PWChar): LongInt; cdecl; external OLLYDBG name 'QuickinsertnameW';
-function     FindnameW(addr:ULong;dtype:LongInt;name:PWChar;nname:LongInt): LongInt; cdecl; external OLLYDBG name 'FindnameW';
-function     FindnextnameW(addr:ULong;name:PWChar;nname:LongInt): LongInt; cdecl; external OLLYDBG name 'FindnextnameW';
-procedure    Startnextnamelist(addr0:ULong;addr1:ULong;list:LongInt;n:LongInt); cdecl; external OLLYDBG name 'Startnextnamelist';
-function     FindnextnamelistW(addr:ULong;dtype:LongInt;name:PWChar;nname:LongInt): LongInt; cdecl; external OLLYDBG name 'FindnextnamelistW';
-function     Findlabel(addr:ULong;name:PWChar;firsttype:LongInt): LongInt; cdecl; external OLLYDBG name 'Findlabel';
-=======
 
 const
   NM_NONAME      = $00;                     // Means that name is absent
@@ -1574,7 +1037,6 @@ function  FindnextnamelistW(addr: ULong; ptype: PInteger;
             name: PWChar; nname: Integer): Integer; cdecl; external OLLYDBG name 'FindnextnamelistW';
 function  Findlabel(addr: ULong; name: PWChar; firsttype: Integer): Integer; cdecl; external OLLYDBG name 'Findlabel';
 
->>>>>>> git  comit
 
 ////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////// SIMPLE DATA FUNCTIONS ////////////////////////////
@@ -1582,23 +1044,6 @@ function  Findlabel(addr: ULong; name: PWChar; firsttype: Integer): Integer; cde
 type
   p_simple = ^t_simple;                     // Simple data container
   t_simple = packed record
-<<<<<<< HEAD
-  heap:PUChar;                 // Data heap
-  itemsize:ULong;              // Size of data element, bytes
-  maxitem:LongInt;             // Size of allocated data heap, items
-  nitem:LongInt;               // Actual number of data items
-  sorted:LongInt;              // Whether data is sorted
-	end;
-
-procedure    Destroysimpledata(pdat:P_simple); cdecl; external OLLYDBG name 'Destroysimpledata';
-function     Createsimpledata(pdat:P_simple;itemsize:ULong): LongInt; cdecl; external OLLYDBG name 'Createsimpledata';
-function     Addsimpledata(pdat:P_simple;data:Pointer): LongInt; cdecl; external OLLYDBG name 'Addsimpledata';
-procedure    Sortsimpledata(pdat:P_simple); cdecl; external OLLYDBG name 'Sortsimpledata';
-function     Findsimpledata(pdat:P_simple;addr:ULong): Pointer; cdecl; external OLLYDBG name 'Findsimpledata';
-function     Getsimpledataindexbyaddr(pdat:P_simple;addr:ULong): LongInt; cdecl; external OLLYDBG name 'Getsimpledataindexbyaddr';
-function     Getsimpledatabyindex(pdat:P_simple;index:LongInt): Pointer; cdecl; external OLLYDBG name 'Getsimpledatabyindex';
-procedure    Deletesimpledatarange(pdat:P_simple;addr0:ULong;addr1:ULong); cdecl; external OLLYDBG name 'Deletesimpledatarange';
-=======
     heap: PUChar;                           // Data heap
     itemsize: ULong;                        // Size of data element, bytes
     maxitem: Integer;                       // Size of allocated data heap, items
@@ -1614,7 +1059,6 @@ function  Findsimpledata(pdat: p_simple; addr: ULong): Pointer; cdecl; external 
 function  Getsimpledataindexbyaddr(pdat: p_simple; addr: ULong): Integer; cdecl; external OLLYDBG name 'Getsimpledataindexbyaddr';
 function  Getsimpledatabyindex(pdat: p_simple; index: Integer): Pointer; cdecl; external OLLYDBG name 'Getsimpledatabyindex';
 procedure Deletesimpledatarange(pdat: p_simple; addr0: ULong; addr1: ULong); cdecl; external OLLYDBG name 'Deletesimpledatarange';
->>>>>>> git  comit
 
 const
   // Bits that describe the state of predicted data, similar to PST_xxx.
@@ -1795,44 +1239,6 @@ const
 type
   p_sorted = ^t_sorted;                     // Descriptor of sorted data
   t_sorted = packed record
-<<<<<<< HEAD
-  n:LongInt;                   // Actual number of entries
-  nmax:LongInt;                // Maximal number of entries
-  itemsize:ULong;              // Size of single entry
-  mode:LongInt;                // Storage mode, set of SDM_xxx
-  data:Pointer;                // Sorted data, NULL if SDM_INDEXED
-  block:PPointer;              // NBLOCK sorted data blocks, or NULL
-  nblock:LongInt;              // Number of allocated blocks
-  version:ULong;               // Changes on each modification
-  dataptr:PPointer;            // Pointers to data, sorted by address
-  selected:LongInt;            // Index of selected entry
-  seladdr:ULong;               // Base address of selected entry
-  selsubaddr:ULong;            // Subaddress of selected entry
-  sortfunc:SORTFUNC;           // Function which sorts data or NULL
-  destfunc:DESTFUNC;           // Destructor function or NULL
-  sort:LongInt;                // Sorting criterium (column)
-  sorted:LongInt;              // Whether indexes are sorted
-  sortindex:PInteger;          // Indexes, sorted by criterium
-	end;
-
-procedure    Destroysorteddata(sd:P_sorted); cdecl; external OLLYDBG name 'Destroysorteddata';
-function     Createsorteddata(sd:P_sorted;itemsize:ULong;nexp:LongInt;sortfunc:SORTFUNC;destfunc:DESTFUNC;mode:LongInt): LongInt; cdecl; external OLLYDBG name 'Createsorteddata';                             
-procedure    Deletesorteddata(sd:P_sorted;addr:ULong;subaddr:ULong); cdecl; external OLLYDBG name 'Deletesorteddata';
-function     Deletesorteddatarange(sd:P_sorted;addr0:ULong;addr1:ULong): LongInt; cdecl; external OLLYDBG name 'Deletesorteddatarange';
-function     Addsorteddata(sd:P_sorted;item:Pointer):Pointer; cdecl; external OLLYDBG name 'Addsorteddata';
-function     Replacesorteddatarange(sd:P_sorted;data:Pointer;n:LongInt;addr0:ULong;addr1:ULong): LongInt; cdecl; external OLLYDBG name 'Replacesorteddatarange';
-procedure    Renumeratesorteddata(sd:P_sorted); cdecl; external OLLYDBG name 'Renumeratesorteddata';
-function     Confirmsorteddata(sd:P_sorted;confirm:LongInt): LongInt; cdecl; external OLLYDBG name 'Confirmsorteddata';
-function     Deletenonconfirmedsorteddata(sd:P_sorted): LongInt; cdecl; external OLLYDBG name 'Deletenonconfirmedsorteddata';
-procedure    Unmarknewsorteddata(sd:P_sorted); cdecl; external OLLYDBG name 'Unmarknewsorteddata';
-function     Findsorteddata(sd:P_sorted;addr:ULong;subaddr:ULong): Pointer; cdecl; external OLLYDBG name ' Findsorteddata';
-function     Findsorteddatarange(sd:P_sorted;addr0:ULong;addr1:ULong):Pointer cdecl; external OLLYDBG name 'Findsorteddatarange';
-function     Findsortedindexrange(sd:P_sorted;addr0:ULong;addr1:ULong): LongInt; cdecl; external OLLYDBG name 'Findsortedindexrange';
-function     Getsortedbyindex(sd:P_sorted;index:LongInt): Pointer; cdecl; external OLLYDBG name 'Getsortedbyindex';
-function     Sortsorteddata(sd:P_sorted;sort:LongInt): LongInt; cdecl; external OLLYDBG name 'Sortsorteddata';
-function     Getsortedbyselection(sd:P_sorted;index:LongInt): Pointer; cdecl; external OLLYDBG name 'Getsortedbyselection';
-function     Issortedinit(sd:P_sorted): LongInt; cdecl; external OLLYDBG name 'Issortedinit';
-=======
     n: Integer;                             // Actual number of entries
     nmax: Integer;                          // Maximal number of entries
     itemsize: ULong;                        // Size of single entry
@@ -1872,7 +1278,6 @@ function  Sortsorteddata(sd: p_sorted; sort: Integer): Integer; cdecl; external 
 function  Getsortedbyselection(sd: p_sorted; index: Integer): Pointer; cdecl; external OLLYDBG name 'Getsortedbyselection';
 function  Issortedinit(sd: p_sorted): Integer; cdecl; external OLLYDBG name 'Issortedinit';
 
->>>>>>> git  comit
 
 ////////////////////////////////////////////////////////////////////////////////
 ///////////////////////// SORTED DATA WINDOWS (TABLES) /////////////////////////
@@ -2005,24 +1410,6 @@ const
 type
   p_drawheader = ^t_drawheader;             // Draw descriptor for TABLE_USERDEF
   t_drawheader = packed record
-<<<<<<< HEAD
-  line:LongInt;                    // Line in window
-  n:LongInt;                       // Total number of visible lines
-  nextaddr:ULong;                  // First address on next line, or 0
-  // Following elements can be freely used by drawing routine. They do not
-  // change between calls within one table.
-  addr:ULong;                      // Custom data
-  s:array[0..TEXTLEN-1] of UChar;  // Custom data
-	end;
-	
-P_table = ^t_table;                // Window with sorted data and bar  
-P_menu  = ^t_menu;                 // Menu descriptor
-
-t_menu_union = record
-  case BYTE of
-    0: (index: ULong);             // Argument passed to menu function
-    1: (hsubmenu: HMENU);          // Handle of pulldown menu
-=======
     line: Integer;                          // Line in window
     n: Integer;                             // Total number of visible lines
     nextaddr: ULong;                        // First address on next line, or 0
@@ -2030,7 +1417,6 @@ t_menu_union = record
     // change between calls within one table.
     addr: ULong;                            // Custom data
     s: array[0..TEXTLEN-1] of UChar;        // Custom data
->>>>>>> git  comit
   end;
 
 const
@@ -2065,127 +1451,6 @@ type
 
   p_menu = ^t_menu;
   t_menu = packed record
-<<<<<<< HEAD
-  name:PWChar;                     // Menu command
-  help:PWChar;                     // Explanation of command
-  shortcutid:LongInt;              // Shortcut identifier, K_xxx
-  menufunc:MENUFUNC;               // Function that executes menu command
-  submenu:P_menu;                  // Pointer to descriptor of popup menu
-  menuType:t_menu_union;
-	end;
-
-TABFUNC    = function (table:P_table;hw:HWND;uMsg:UINT;wp:WPARAM;lp:LPARAM): Long; cdecl;
-UPDATEFUNC = function (table:P_table): LongInt; cdecl;
-DRAWFUNC   = function (s:PWChar;mask:PUChar;select:PLongInt;table:P_table;pdh:P_drawheader;column:LongInt;cache:Pointer): LongInt; cdecl;
-TABSELFUNC = procedure(table:P_table;selected:LongInt;reason:LongInt); cdecl;
-
-  t_table = packed record
-  // These variables must be filled before table window is created.
-  name:array[0..SHORTNAME-1] of WChar;  // Name used to save/restore position
-  mode:LongInt;                         // Combination of bits TABLE_xxx
-  sorted:t_sorted;                      // Sorted data
-  subtype:LongInt;                      // User-defined subtype
-  bar:t_bar;                            // Description of bar
-  bottomspace:LongInt;                  // Height of free space on the bottom
-  minwidth:LongInt;                     // Minimal width of the table, pixels
-  tabfunc:TABFUNC;                      // Custom message function or NULL
-  updatefunc:UPDATEFUNC;                // Data update function or NULL
-  drawfunc:DRAWFUNC;                    // Drawing function
-  tableselfunc:TABSELFUNC;              // Callback indicating selection change
-  menu:P_menu;                          // Menu descriptor
-  // Table functions neither initialize nor use these variables.
-  custommode:ULong;                     // User-defined custom data
-  customdata:Pointer;                   // Pointer to more custom data
-  // These variables are initialized and/or used by table functions.
-  hparent:HWND;                         // Handle of MDI container or NULL
-  hstatus:HWND;                         // Handle of status bar or NULL
-  hw:HWND;                              // Handle of child table or NULL
-  htooltip:HWND;                        // Handle of tooltip window or NULL
-  font:LongInt;                         // Index of font used by window
-  scheme:LongInt;                       // Colour scheme used by window
-  hilite:LongInt;                       // Highlighting scheme used by window
-  hscroll:LongInt;                      // Whether horizontal scroll visible
-  xshift:LongInt;                       // Shift in X direction, pixels
-  offset:LongInt;                       // First displayed row
-  colsel:LongInt;                       // Column in TABLE_COLSEL window
-  version:ULong;                        // Version of sorted on last update
-  timerdraw:ULong;                      // Timer redraw is active (period, ms)
-  rcprev:TRECT;                         // Temporary storage for old position
-  rtback:LongInt;                       // Back step in run trace, 0 - actual
-	end;
-
-function Callmenufunction(pt:P_table;pm:P_menu;menufunc:MENUFUNC;index:ULong): LongInt; cdecl; external OLLYDBG name 'Callmenufunction';
-////////////////////////////////////////////////////////////////////////////////
-Const
-
-WM_USER        =$0400;
-GWL_USR_TABLE  =0;               // Offset to pointer to t_table
-// Custom messages.
-WM_USER_CREATE =(WM_USER+100);   // Table window is created
-WM_USER_HSCR   =(WM_USER+101);   // Update horizontal scroll
-WM_USER_VSCR   =(WM_USER+102);   // Update vertical scroll
-WM_USER_MOUSE  =(WM_USER+103);   // Mouse moves, set custom cursor
-WM_USER_VINC   =(WM_USER+104);   // Scroll contents of window by lines
-WM_USER_VPOS   =(WM_USER+105);   // Scroll contents of window by position
-WM_USER_VBYTE  =(WM_USER+106);   // Scroll contents of window by bytes
-WM_USER_SETS   =(WM_USER+107);   // Start selection in window
-WM_USER_CNTS   =(WM_USER+108);   // Continue selection in window
-WM_USER_MMOV   =(WM_USER+109);   // Move window's contents by mouse
-WM_USER_MOVS   =(WM_USER+110);   // Keyboard scrolling and selection
-WM_USER_KEY    =(WM_USER+111);   // Key pressed
-WM_USER_BAR    =(WM_USER+112);   // Message from bar segment as button
-WM_USER_DBLCLK =(WM_USER+113);   // Doubleclick in column
-WM_USER_SELXY  =(WM_USER+114);   // Get coordinates of selection
-WM_USER_FOCUS  =(WM_USER+115);   // Set focus to child of frame window
-WM_USER_UPD    =(WM_USER+116);   // Autoupdate contents of the window
-WM_USER_MTAB   =(WM_USER+117);   // Middle click on tab in tab parent
-// Custom broadcasts and notifications.
-WM_USER_CHGALL =(WM_USER+132);   // Update all windows
-WM_USER_CHGCPU =(WM_USER+133);   // CPU thread has changed
-WM_USER_CHGMEM =(WM_USER+134);   // List of memory blocks has changed
-WM_USER_BKUP   =(WM_USER+135);   // Global backup is changed
-WM_USER_FILE   =(WM_USER+136);   // Query for file dump
-WM_USER_NAMES  =(WM_USER+137);   // Query for namelist window
-WM_USER_SAVE   =(WM_USER+138);   // Query for unsaved data
-WM_USER_CLEAN  =(WM_USER+139);   // End of process, close related windows
-WM_USER_HERE   =(WM_USER+140);   // Query for windows to restore
-WM_USER_CLOSE  =(WM_USER+141);   // Internal substitute for WM_CLOSE
-
-KEY_ALT        =$04;             // Alt key pressed
-KEY_CTRL       =$02;             // Ctrl key pressed
-KEY_SHIFT      =$01;             // Shift key pressed
-
-// Control alignment modes for Createtablechild().
-ALIGN_MASK     =$C000;           // Mask to extract control alignment
-ALIGN_LEFT     =$0000;           // Control doesn't move
-ALIGN_RIGHT    =$4000;           // Control moves with right border
-ALIGN_WIDTH    =$8000;           // Control resizes with right border
-ALIGN_IDMASK   =$0FFF;           // Mask to extract control ID
-
-procedure    Processwmmousewheel(hw:HWND;wp:WPARAM); cdecl; external OLLYDBG name 'Processwmmousewheel';
-function     Getcharacterwidth(pt:P_table;column:LongInt): LongInt; cdecl; external OLLYDBG name 'Getcharacterwidth';
-procedure    Defaultbar(pt:P_table); cdecl; external OLLYDBG name 'Defaultbar';
-function     Linecount(pt:P_table): LongInt; cdecl; external OLLYDBG name 'Linecount';
-function     Gettabletext(pt:P_table;row:LongInt;column:LongInt;
-                          text:PWChar;tmask:PUChar;tselect:PInteger): LongInt; cdecl; external OLLYDBG name 'Gettabletext';
-function     Gettableselectionxy(pt:P_table;column:LongInt;coord:PPOINT): LongInt; cdecl; external OLLYDBG name 'Gettableselectionxy';
-function     Maketableareavisible(pt:P_table;column:LongInt;x0:LongInt;y0:LongInt;x1:LongInt;y1:LongInt): LongInt; cdecl; external OLLYDBG name 'Maketableareavisible';
-function     Movetableselection(pt:P_table;n:LongInt): LongInt; cdecl; external OLLYDBG name 'Movetableselection';
-function     Settableselection(pt:P_table;selected:LongInt): LongInt; cdecl; external OLLYDBG name 'Settableselection';
-function     Removetableselection(pt:P_table): LongInt; cdecl; external OLLYDBG name 'Removetableselection';
-procedure    Updatetable(pt:P_table;force:LongInt); cdecl; external OLLYDBG name 'Updatetable';
-procedure    Delayedtableredraw(pt:P_table); cdecl; external OLLYDBG name 'Delayedtableredraw';
-procedure    Setautoupdate(pt:P_table;autoupdate:LongInt); cdecl; external OLLYDBG name 'Setautoupdate';
-function     Copytableselection(pt:P_table;column:LongInt): HGLOBAL; cdecl; external OLLYDBG name 'Copytableselection';
-function     Copywholetable(pt:P_table;compatible:LongInt): HGLOBAL; cdecl; external OLLYDBG name 'Copywholetable';
-function     Createottablewindow(hparent:HWND;pt:P_table;rpos:PRECT): HWND; cdecl; external OLLYDBG name 'Createottablewindow';
-function     Createtablewindow(pt:P_table;nrow:LongInt;ncolumn:LongInt;
-                               hi:Pointer;icon:PWChar;title:PWChar): HWND; cdecl; external OLLYDBG name 'Createtablewindow';
-function     Activatetablewindow(pt:P_table): HWND; cdecl; external OLLYDBG name 'Activatetablewindow';
-function     Createtablechild(pt:P_table;classname:PWChar;name:PWChar;
-                              help:PWChar;style:ULong;x:LongInt;y:LongInt;dx:LongInt;
-                              dy:LongInt;idalign:LongInt): HWND; cdecl; external OLLYDBG name 'Createtablechild';
-=======
     name: PWChar;                           // Menu command
     help: PWChar;                           // Explanation of command
     shortcutid: Integer;                    // Shortcut identifier, K_xxx
@@ -2231,7 +1496,6 @@ function     Createtablechild(pt:P_table;classname:PWChar;name:PWChar;
 
 function Callmenufunction(pt: p_table; pm: p_menu; menufunc: MENUFUNC; index: ULong): Integer; cdecl; external OLLYDBG name 'Callmenufunction';
 
->>>>>>> git  comit
 
 ////////////////////////////////////////////////////////////////////////////////
 const
@@ -2337,37 +1601,6 @@ type
 
   p_frame = ^t_frame;                       // Descriptor of frame or tab window
   t_frame = packed record
-<<<<<<< HEAD
-  // These variables must be filled before frame window is created.
-  name:array[0..SHORTNAME-1] of WChar;         // Name used to save/restore position
-  herebit:LongInt;                             // Must be 0 for plugins
-  mode:LongInt;                                // Combination of bits TABLE_xxx
-  block:P_block;                               // Pointer to block tree
-  menu:P_menu;                                 // Menu descriptor (tab window only)
-  scheme:LongInt;                              // Colour scheme used by window
-  // These variables are initialized by frame creation function.
-  hw:HWND;                                     // Handle of MDI container or NULL
-  htab:HWND;                                   // Handle of tab control
-  htabwndproc:TFNWndProc;                      // Original WndProc of tab control
-  capturedtab:LongInt;                         // Tab captured on middle mouse click
-  hstatus:HWND;                                // Handle of status bar or NULL
-  active:P_block;                              // Active table (has focus) or NULL
-  captured:P_block;                            // Block that captured mouse or NULL
-  captureoffset:LongInt;                       // Offset on mouse capture
-  capturex:LongInt;                            // Mouse screen X coordinate on capture
-  capturey:LongInt;                            // Mouse screen Y coordinate on capture
-  title:array[0..TEXTLEN-1] of WChar;          // Frame or tab window title
-	end;
-
-function     Createframewindow(pf:P_frame;icon:PWChar;title:PWChar):HWND; cdecl; external OLLYDBG name 'Createframewindow';
-procedure    Updateframe(pf:P_frame;redrawnow:LongInt); cdecl; external OLLYDBG name 'Updateframe';
-function     Getactiveframe(pf:P_frame): P_table; cdecl; external OLLYDBG name 'Getactiveframe';
-function     Updatetabs(pf:P_frame): LongInt; cdecl; external OLLYDBG name 'Updatetabs';
-function     Createtabwindow(pf:P_frame;icon:PWChar;title:PWChar):HWND; cdecl; external OLLYDBG name 'Createtabwindow';
-function     Getactivetab(pf:P_frame): P_table; cdecl; external OLLYDBG name 'Getactivetab';
-function     Gettabcount(pf:P_frame;index:PInteger): LongInt; cdecl; external OLLYDBG name 'Gettabcount';
-function     Setactivetab(pf:P_frame;index:LongInt): LongInt; cdecl; external OLLYDBG name 'Setactivetab';
-=======
     // These variables must be filled before frame window is created.
     name: array[0..SHORTNAME-1] of WChar;   // Name used to save/restore position
     herebit: Integer;                       // Must be 0 for plugins
@@ -2399,7 +1632,6 @@ function  Getactivetab(pf: p_frame): p_table; cdecl; external OLLYDBG name 'Geta
 function  Gettabcount(pf: p_frame; index: PInteger): Integer; cdecl; external OLLYDBG name 'Gettabcount';
 function  Setactivetab(pf: p_frame; index: Integer): Integer; cdecl; external OLLYDBG name 'Setactivetab';
 
->>>>>>> git  comit
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////// FONTS AND GRAPHICS //////////////////////////////
@@ -2530,26 +1762,6 @@ type
 
   p_scheme = ^t_scheme;                     // Descriptor of colour scheme
   t_scheme = packed record
-<<<<<<< HEAD
-  name:array[0..TEXTLEN-1] of WChar;       // Internal scheme name
-  textcolor:array[0..NDRAW-1] of COLORREF; // Foreground colours (in DRAW_COLOR)
-  bkcolor:array[0..NDRAW-1] of COLORREF;   // Background colours (in DRAW_COLOR)
-  hiliteoperands:LongInt;                  // Used only by highlighting schemes
-  hilitemodified:LongInt;                  // Used only by highlighting schemes
-  bkbrush:HBRUSH;                          // Ordinary background brush
-  selbkbrush:HBRUSH;                       // Selected background brush
-  auxbrush:HBRUSH;                         // Auxiliary brush
-  graphpen:HPEN;                           // Pen for normal graphical elements
-  lopen:HPEN;                              // Pen for grayed graphical elements
-  hipen:HPEN;                              // Pen for hilited graphical elements
-  auxpen:HPEN;                             // Pen for auxiliary graphical elements
-  ulpen:HPEN;                              // Pen to underline text
-	end;
-
-function     Getmonitorrect(x:LongInt;y:LongInt;rc:PRECT): LongInt; cdecl; external OLLYDBG name 'Getmonitorrect';
-procedure    Sunkenframe(dc:HDC;rc:PRECT;flags:LongInt); cdecl; external OLLYDBG name 'Sunkenframe';
-function     Findstockobject(gdihandle:ULong;name:PWChar;nname:LongInt): LongInt; cdecl; external OLLYDBG name 'Findstockobject';
-=======
     name: array[0..TEXTLEN-1] of WChar;     // Internal scheme name
     textcolor: array[0..NDRAW-1] of COLORREF; // Foreground colours (in DRAW_COLOR)
     bkcolor: array[0..NDRAW-1] of COLORREF; // Background colours (in DRAW_COLOR)
@@ -2569,7 +1781,6 @@ function  Getmonitorrect(x: Integer; y: Integer; rc: PRect): Integer; cdecl; ext
 procedure Sunkenframe(dc: HDC; rc: PRect; flags: Integer); cdecl; external OLLYDBG name 'Sunkenframe';
 function  Findstockobject(gdihandle: ULong; name: PWChar; nname: Integer): Integer; cdecl; external OLLYDBG name 'Findstockobject';
 
->>>>>>> git  comit
 
 ////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////// MEMORY FUNCTIONS ///////////////////////////////
@@ -2599,33 +1810,6 @@ const
 type
   p_memory = ^t_memory;                     // Descriptor of memory block
   t_memory = packed record
-<<<<<<< HEAD
-  base:ULong;                                   // Base address of memory block
-  size:ULong;                                   // Size of memory block
-  stype:ULong;                                  // Service information, TY_xxx+MEM_xxx
-  special:LongInt;                              // Extension of type, one of MSP_xxx
-  owner:ULong;                                  // Address of owner of the memory
-  initaccess:ULong;                             // Initial read/write access
-  access:ULong;                                 // Actual status and read/write access
-  threadid:ULong;                               // Block belongs to this thread or 0
-  sectname:array[0..SHORTNAME-1] of WChar;      // Null-terminated section name
-  copy:PUChar;                                  // Copy used in CPU window or NULL
-  decode:PUChar;                                // Decoding information or NULL
-	end;
-
-procedure   Flushmemorycache; cdecl; external OLLYDBG name 'Flushmemorycache';
-function    Readmemory(buf:Pointer;addr:ULong;size:ULong;mode:LongInt): ULong; cdecl; external OLLYDBG name 'Readmemory';
-function    Readmemoryex(buf:Pointer;addr:ULong;size:ULong;mode:LongInt;threadid:ULong): ULong; cdecl; external OLLYDBG name 'Readmemoryex';
-function    Writememory(const buf:Pointer;addr:ULong;size:ULong;mode:LongInt): ULong; cdecl; external OLLYDBG name 'Writememory';
-function    Findmemory(addr:ULong): P_memory; cdecl; external OLLYDBG name 'Findmemory';
-function    Finddecode(addr:ULong;psize:PULong): PUChar; cdecl; external OLLYDBG name 'Finddecode';
-function    Guardmemory(base:ULong;size:ULong;guard:LongInt): LongInt;cdecl; external OLLYDBG name 'Guardmemory';
-function    Listmemory: LongInt; cdecl; external OLLYDBG name 'Listmemory';
-function    Copymemoryhex(addr:ULong;size:ULong): HGLOBAL; cdecl; external OLLYDBG name 'Copymemoryhex';
-function    Pastememoryhex(addr:ULong;size:ULong;ensurebackup:LongInt;removeanalysis:LongInt): LongInt; cdecl; external OLLYDBG name 'Pastememoryhex';
-function    Editmemory(hparent:HWND;addr:ULong;size:ULong;ensurebackup:LongInt;removeanalysis:LongInt;
-                       x:LongInt;y:LongInt;font:LongInt): LongInt; cdecl; external OLLYDBG name 'Editmemory';
-=======
     base: ULong;                            // Base address of memory block
     size: ULong;                            // Size of memory block
     _type: ULong;                           // Service information, TY_xxx+MEM_xxx
@@ -2654,7 +1838,6 @@ function  Pastememoryhex(addr: ULong; size: ULong;
 function  Editmemory(hparent: HWND; addr: ULong; size: ULong;
             ensurebackup: Integer; removeanalysis: Integer; x: Integer; y: Integer; font: Integer): Integer; cdecl; external OLLYDBG name 'Editmemory';
 
->>>>>>> git  comit
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2722,43 +1905,6 @@ type
       1: (swcase: ULong);                   // First switch case
   end;
 
-<<<<<<< HEAD
-P_jmpdata = ^t_jmpdata;         // Jump table
-  t_jmpdata = packed record
-  modbase:ULong;                // Base of module owning jump table
-  modsize:ULong;                // Size of module owning jump table
-  jmpdata:P_jmp;                // Jump data, sorted by source
-  jmpindex:PLongInt;            // Indices to jmpdata, sorted by dest
-  maxjmp:LongInt;               // Total number of elements in arrays
-  njmp:LongInt;                 // Number of used elements in arrays
-  nsorted:LongInt;              // Number of sorted elements in arrays
-  dontsort:LongInt;             // Do not sort data implicitly
-  exe:P_exe;                    // Pointed modules, unsorted
-  maxexe:LongInt;               // Allocated number of elements in exe
-  nexe:LongInt;                 // Number of used elements in exe
-	end;
-	
-t_jmpcall_union = record
-  case BYTE of
-  0: (jtype: LongInt);          // Jump/call type, one of JT_xxx
-  1: (swcase: ULong);           // First switch case
-  end;
-  
-P_jmpcall = ^t_jmpcall;         // Descriptor of found jump or call
-  t_jmpcall = packed record  
-  addr:ULong;                   // Source or destination address
-  jmpType:t_jmpcall_union;
-	end;
-
-function     Addjump(pdat:P_jmpdata;from:ULong;dest:ULong;jtype:LongInt): LongInt; cdecl; external OLLYDBG name 'Addjump';
-procedure    Sortjumpdata(pdat:P_jmpdata); cdecl; external OLLYDBG name 'Sortjumpdata';
-function     Findjumpfrom(from:ULong ): P_jmp; cdecl; external OLLYDBG name 'Findjumpfrom';
-function     Findlocaljumpsto(dest:ULong;buf:PULong;nbuf:LongInt): LongInt; cdecl; external OLLYDBG name 'Findlocaljumpsto';
-function     Findlocaljumpscallsto(dest:ULong;jmpcall:P_jmpcall;njmpcall:LongInt) : LongInt; cdecl; external OLLYDBG name 'Findlocaljumpscallsto';
-function     Arelocaljumpscallstorange(addr0:ULong;addr1:ULong): LongInt; cdecl; external OLLYDBG name 'Arelocaljumpscallstorange';
-function     Findglobalcallsto(dest:ULong;buf:PULong;nbuf:LongInt): LongInt; cdecl; external OLLYDBG name 'Findglobalcallsto';
-function     Findglobaljumpscallsto(dest:ULong;jmpcall:P_jmpcall;njmpcall:LongInt): LongInt; cdecl; external OLLYDBG name 'Findglobaljumpscallsto';
-=======
   p_jmpcall = ^t_jmpcall;                   // Descriptor of found jump or call
   t_jmpcall = packed record
     addr: ULong;                            // Source or destination address
@@ -2776,7 +1922,6 @@ function  Findglobalcallsto(dest: ULong; buf: PULong; nbuf: Integer): Integer; c
 function  Findglobaljumpscallsto(dest: ULong; jmpcall: p_jmpcall;
             njmpcall: Integer): Integer; cdecl; external OLLYDBG name 'Findglobaljumpscallsto';
 
->>>>>>> git  comit
 
 ////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////// SETS OF RANGES ////////////////////////////////
@@ -2784,22 +1929,6 @@ function  Findglobaljumpscallsto(dest: ULong; jmpcall: p_jmpcall;
 type
   p_range = ^t_range;
   t_range = packed record
-<<<<<<< HEAD
-  rmin:ULong;                   // Low range limit
-  rmax:ULong;                   // High range limit (INCLUDED!)
-	end;
-
-function     Initset(zset:P_range;nmax:ULong): LongInt; cdecl; external OLLYDBG name 'Initset';
-function     Fullrange(zset:P_range): LongInt; cdecl; external OLLYDBG name 'Fullrange';
-function     Emptyrange(zset:P_range): LongInt; cdecl; external OLLYDBG name 'Emptyrange';
-function     Getsetcount(const zset:P_range): ULong; cdecl; external OLLYDBG name 'Getsetcount';
-function     Getrangecount(const zset:P_range): LongInt; cdecl; external OLLYDBG name 'Getrangecount';
-function     Isinset(const zset:P_range;value:ULong): LongInt; cdecl; external OLLYDBG name 'Isinset';
-function     Getrangebymember(const zset:P_range;value:ULong;rmin:PULong;rmax:PULong): LongInt; cdecl; external OLLYDBG name 'Getrangebymember';
-function     Getrangebyindex(const zset:P_range;index:LongInt;rmin:PULong;rmax:PULong): LongInt; cdecl; external OLLYDBG name 'Getrangebyindex';
-function     Addrange(zset:P_range;rmin:ULong;rmax:ULong): LongInt; cdecl; external OLLYDBG name 'Addrange';
-function     Removerange(zset:P_range;rmin:ULong;rmax:ULong): LongInt; cdecl; external OLLYDBG name 'Removerange';
-=======
     rmin: ULong;                            // Low range limit
     rmax: ULong;                            // High range limit (INCLUDED!)
   end;
@@ -2816,7 +1945,6 @@ function  Getrangebyindex(const rset: p_range; index: Integer;
             rmin: PULong; rmax: PULong): Integer; cdecl; external OLLYDBG name 'Getrangebyindex';
 function  Addrange(rset: p_range; rmin: ULong; rmax: ULong): Integer; cdecl; external OLLYDBG name 'Addrange';
 function  Removerange(rset: p_range; rmin: ULong; rmax: ULong): Integer; cdecl; external OLLYDBG name 'Removerange';
->>>>>>> git  comit
 
 ////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////// NESTED DATA //////////////////////////////////
@@ -2845,181 +1973,6 @@ type
 
   p_nested = ^t_nested;                     // Descriptor of nested data
   t_nested = packed record
-<<<<<<< HEAD
-  n:LongInt;                   // Actual number of elements
-  nmax:LongInt;                // Maximal number of elements
-  itemsize:ULong;              // Size of single element
-  data:Pointer;                // Ordered nested data
-  version:ULong;               // Changes on each modification
-  destfunc: NDDEST;            // Destructor function or NULL
-	end;
-
-procedure    Destroynesteddata(nd:P_nested); cdecl; external OLLYDBG name 'Destroynesteddata';
-function     Createnesteddata(nd:P_nested;itemsize:ULong;nexp:LongInt;destfunc:NDDEST{*}): LongInt; cdecl; external OLLYDBG name 'Createnesteddata';
-function     Addnesteddata(nd:P_nested;item:Pointer): Pointer ; cdecl; external OLLYDBG name 'Addnesteddata';
-procedure    Deletenestedrange(nd:P_nested;addr0:ULong; addr1:ULong); cdecl; external OLLYDBG name 'Deletenestedrange';
-function     Getnestingpattern(nd:P_nested;addr:ULong;pat:PWChar;npat:LongInt;mask:UChar;showentry:LongInt;isend:PInteger): LongInt; cdecl; external OLLYDBG name 'Getnestingpattern';        
-function     Getnestingdepth(nd:P_nested;addr:ULong): LongInt; cdecl; external OLLYDBG name 'Getnestingdepth';
-function     Findnesteddata(nd:P_nested;addr:ULong;level:LongInt):Pointer; cdecl; external OLLYDBG name 'Findnesteddata';
-procedure    Nesteddatatoudd(nd:P_nested;base:ULong;datasize:PULong); cdecl; external OLLYDBG name 'Nesteddatatoudd';
-function     Uddtonesteddata(nd:P_nested;data:Pointer;base:ULong;size:ULong): LongInt; cdecl; external OLLYDBG name 'Uddtonesteddata';
-
-////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////// MODULES ////////////////////////////////////
-Const
-
-SHT_MERGENEXT  =$00000001;      // Merge section with the next
-NCALLMOD       =24;             // Max number of saved called modules
-
-// .NET stream identifiers. Don't change the order and the values of the
-// first three items (NS_STRINGS, NS_GUID and NS_BLOB)!
-NS_STRINGS     =0;              // Stream with ASCII strings
-NS_GUID        =1;              // Stream with GUIDs
-NS_BLOB        =2;              // Data referenced by MetaData
-NS_US          =3;              // Stream with UNICODE strings
-NS_META        =4;              // Stream with MetaData tables
-
-NETSTREAM      =5;              // Number of default .NET streams
-
-// Indices of .NET MetaData tables.
-MDT_MODULE     =0;              // Module table
-MDT_TYPEREF    =1;              // TypeRef table
-MDT_TYPEDEF    =2;              // TypeDef table
-MDT_FIELDPTR   =3;              // FieldPtr table
-MDT_FIELD      =4;              // Field table
-MDT_METHODPTR  =5;              // MethodPtr table
-MDT_METHOD     =6;              // MethodDef table
-MDT_PARAMPTR   =7;              // ParamPtr table
-MDT_PARAM      =8;              // Param table
-MDT_INTERFACE  =9;              // InterfaceImpl table
-MDT_MEMBERREF  =10;             // MemberRef table
-MDT_CONSTANT   =11;             // Constant table
-MDT_CUSTATTR   =12;             // CustomAttribute table
-MDT_MARSHAL    =13;             // FieldMarshal table
-MDT_DECLSEC    =14;             // DeclSecurity table
-MDT_CLASSLAY   =15;             // ClassLayout table
-MDT_FIELDLAY   =16;             // FieldLayout table
-MDT_SIGNATURE  =17;             // StandAloneSig table
-MDT_EVENTMAP   =18;             // EventMap table
-MDT_EVENTPTR   =19;             // EventPtr table
-MDT_EVENT      =20;             // Event table
-MDT_PROPMAP    =21;             // PropertyMap table
-MDT_PROPPTR    =22;             // PropertyPtr table
-MDT_PROPERTY   =23;             // Property table
-MDT_METHSEM    =24;             // MethodSemantics table
-MDT_METHIMPL   =25;             // MethodImpl table
-MDT_MODREF     =26;             // ModuleRef table
-MDT_TYPESPEC   =27;             // TypeSpec table
-MDT_IMPLMAP    =28;             // ImplMap table
-MDT_RVA        =29;             // FieldRVA table
-MDT_ENCLOG     =30;             // ENCLog table
-MDT_ENCMAP     =31;             // ENCMap table
-MDT_ASSEMBLY   =32;             // Assembly table
-MDT_ASMPROC    =33;             // AssemblyProcessor table
-MDT_ASMOS      =34;             // AssemblyOS table
-MDT_ASMREF     =35;             // AssemblyRef table
-MDT_REFPROC    =36;             // AssemblyRefProcessor table
-MDT_REFOS      =37;             // AssemblyRefOS table
-MDT_FILE       =38;             // File table
-MDT_EXPORT     =39;             // ExportedType table
-MDT_RESOURCE   =40;             // ManifestResource table
-MDT_NESTED     =41;             // NestedClass table
-MDT_GENPARM    =42;             // GenericParam table
-MDT_METHSPEC   =43;             // MethodSpec table
-MDT_CONSTR     =44;             // GenericParamConstraint table
-MDT_UNUSED     =63;             // Used only in midx[]
-MDTCOUNT       =64;             // Number of .NET MetaData tables
-
-Type
-
-P_secthdr = ^t_secthdr;                       // Extract from IMAGE_SECTION_HEADER
-  t_secthdr = packed record
-  sectname:array[0..12] of WChar;             // Null-terminated section name
-  base:ULong;                                 // Address of section in memory
-  size:ULong;                                 // Size of section loaded into memory
-  stype:ULong;                                // Set of SHT_xxx
-  fileoffset:ULong;                           // Offset of section in file
-  rawsize:ULong;                              // Size of section in file
-  characteristics:ULong;                      // Set of IMAGE_SCN_xxx
-	end;
-
-P_premod = ^t_premod;                         // Preliminary module descriptor
-  t_premod = packed record
-  base:ULong;                                 // Base address of the module
-  size:ULong;                                 // Size of module or 1
-  stype:ULong;                                // Service information, TY_xxx+MOD_xxx
-  entry:ULong;                                // Address of <ModuleEntryPoint> or 0
-  path:array[0..MAXPATH-1] of WChar;          // Full name of the module
-	end;
-
-P_netstream = ^t_netstream;                   // Location of default .NET stream
-  t_netstream = packed record
-  base:ULong;                                 // Base address in memory
-  size:ULong;                                 // Stream size, bytes
-	end;
-
-P_metadata = ^t_metadata;                     // Descriptor of .NET MetaData table
-  t_metadata = packed record
-  base:ULong;                                 // Location in memory or NULL if absent
-  rowcount:ULong;                              // Number of rows or 0 if absent
-  rowsize:ULong;                              // Size of single row, bytes, or 0
-  nameoffs:UShort;                            // Offset of name field
-  namesize:UShort;                            // Size of name or 0 if absent
-	end;
-
-P_module = ^t_module;                         // Descriptor of executable module
-  t_module = packed record
-  base:ULong;                                 // Base address of module
-  size:ULong;                                 // Size of memory occupied by module
-  mtype:ULong;                                // Service information, TY_xxx+MOD_xxx
-  modname:array[0..SHORTNAME-1] of WChar;     // Short name of the module
-  path:array[0..MAXPATH-1] of WChar;          // Full name of the module
-  version:array[0..TEXTLEN-1] of WChar;       // Version of executable file
-  fixupbase:ULong;                            // Base of image in executable file
-  codebase:ULong;                             // Base address of module code block
-  codesize:ULong;                             // Size of module code block
-  entry:ULong;                                // Address of <ModuleEntryPoint> or 0
-  sfxentry:ULong;                             // Address of SFX-packed entry or 0
-  winmain:ULong;                              // Address of WinMain or 0
-  database:ULong;                             // Base address of module data block
-  edatabase:ULong;                            // Base address of export data table
-  edatasize:ULong;                            // Size of export data table
-  idatatable:ULong;                           // Base address of import data table
-  iatbase:ULong;                              // Base of Import Address Table
-  iatsize:ULong;                              // Size of IAT
-  relocbase:ULong;                            // Base address of relocation table
-  relocsize:ULong;                            // Size of relocation table
-  resbase:ULong;                              // Base address of resources
-  ressize:ULong;                              // Size of resources
-  tlsbase:ULong;                              // Base address of TLS directory table
-  tlssize:ULong;                              // Size of TLS directory table
-  tlscallback:ULong;                          // Address of first TLS callback or 0
-  netentry:ULong;                             // .NET entry (MOD_NETAPP only)
-  clibase:ULong;                              // .NET CLI header base (MOD_NETAPP)
-  clisize:ULong;                              // .NET CLI header base (MOD_NETAPP)
-  netstr:array[0..NETSTREAM-1] of t_netstream;// Locations of default .NET streams
-  metadata:array[0..MDTCOUNT-1] of t_metadata;// Descriptors of .NET MetaData tables
-  sfxbase:ULong;                              // Base of memory block with SFX
-  sfxsize:ULong;                              // Size of memory block with SFX
-  rawhdrsize:ULong;                           // Size of PE header in file
-  memhdrsize:ULong;                           // Size of PE header in memory
-  nsect:LongInt;                              // Number of sections in the module
-  sect:P_secthdr;                             // Extract from section headers
-  nfixup:LongInt;                             // Number of 32-bit fixups
-  fixup:PULong;                               // Array of 32-bit fixups
-  jumps:t_jmpdata;                            // Jumps and calls from this module
-  loopnest:t_nested;                          // Loop brackets
-  argnest:t_nested;                           // Call argument brackets
-  predict:t_simple;                           // Predicted ESP, EBP & results (sd_pred)
-  strings:t_sorted;                           // Resource strings (t_string)
-  saveudd:LongInt;                            // UDD-relevant data is changed
-  ncallmod:LongInt;                           // No. of called modules (max. NCALLMOD)
-  callmod:array[0..NCALLMOD-1, 0..SHORTNAME-1] of WChar;// List of called modules
-	end;
-
-// Keep t_aqueue identical with the header of t_module!
-P_aqueue = ^t_aqueue;                         // Descriptor of module to be analysed
-=======
     n: Integer;                             // Actual number of elements
     nmax: Integer;                          // Maximal number of elements
     itemsize: ULong;                        // Size of single element
@@ -3196,7 +2149,6 @@ type
 
   // Keep t_aqueue identical with the header of t_module!
   p_aqueue = ^t_aqueue;                     // Descriptor of module to be analysed
->>>>>>> git  comit
   t_aqueue = packed record
     base: ULong;                            // Base address of module
     size: ULong;                            // Size of memory occupied by module
@@ -3215,19 +2167,6 @@ function  Getexportfrommemory(addr: ULong; s: PWChar): Integer; cdecl; external 
 function  FindaddressW(name: PWChar; pmod: p_module;
             addr: PULong; errtxt: PWChar): Integer; cdecl; external OLLYDBG name 'FindaddressW';
 
-<<<<<<< HEAD
-function     Findmodule(addr:ULong): P_module; cdecl; external OLLYDBG name 'Findmodule';
-function     Findmodulebyname(mshortname:PWChar): P_module; cdecl; external OLLYDBG name 'Findmodulebyname';
-function     Findmainmodule: P_module; cdecl; external OLLYDBG name 'Findmainmodule';
-function     Issystem(addr:ULong): LongInt; cdecl; external OLLYDBG name 'Issystem';
-function     Findfixup(pmod:P_module;addr:ULong): PULong; cdecl; external OLLYDBG name 'Findfixup';
-function     Findfileoffset(pmod:P_module;addr:ULong):ULong; cdecl; external OLLYDBG name 'Findfileoffset';
-function     Decoderange(s:PWChar;addr:ULong;size:ULong): LongInt; cdecl; external OLLYDBG name 'Decoderange';
-function     Getexeversion(path:PWChar;version:PWChar): LongInt; cdecl; external OLLYDBG name 'Getexeversion';
-function     Getexportfrommemory(addr:ULong;s:PWChar): LongInt; cdecl; external OLLYDBG name 'Getexportfrommemory';
-function     FindaddressW(name:PWChar;pmod:P_module;addr:PULong;errtxt:PWChar): LongInt; cdecl; external OLLYDBG name 'FindaddressW';
-=======
->>>>>>> git  comit
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////// LIST OF DEBUGGEE'S WINDOWS //////////////////////////
@@ -3296,10 +2235,6 @@ type
 
 function  Getmodulestring(pm: p_module; id: ULong; s: PWChar): Integer; cdecl; external OLLYDBG name 'Getmodulestring';
 
-<<<<<<< HEAD
-function     Getmodulestring(pm:P_module;id:ULong;s:PWChar): LongInt; cdecl; external OLLYDBG name 'Getmodulestring';
-=======
->>>>>>> git  comit
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////// UDD FILES ///////////////////////////////////
@@ -3430,46 +2365,6 @@ type
 
   p_thread = ^t_thread;                     // Information about active threads
   t_thread = packed record
-<<<<<<< HEAD
-  threadid:ULong;                          // Thread identifier
-  dummy:ULong;                             // Always 1
-  stype:ULong;                             // Service information, TY_xxx+THR_xxx
-  ordinal:LongInt;                         // Thread's ordinal number (1-based)
-  name:array[0..SHORTNAME-1] of WChar;     // Short name of the thread
-  thread:THandle;                          // Thread handle, for OllyDbg only!
-  tib:ULong;                               // Thread Information Block
-  entry:ULong;                             // Thread entry point
-  context:CONTEXT;                         // Actual context of the thread
-  reg:t_reg;                               // Actual contents of registers
-  regvalid:LongInt;                        // Whether reg and context are valid
-  oldreg:t_reg;                            // Previous contents of registers
-  oldregvalid:LongInt;                     // Whether oldreg is valid
-  suspendrun:LongInt;                      // Suspended for run (0 or 1)
-  suspendcount:LongInt;                    // Temporarily suspended (0..inf)
-  suspenduser:LongInt;                     // Suspended by user (0 or 1)
-  trapset:LongInt;                         // Single-step trap set by OllyDbg
-  trapincontext:LongInt;                   // Trap is catched in exception context
-  rtprotocoladdr:ULong;                    // Address of destination to protocol
-  ignoreonce:LongInt;                      // Ignore list, IGNO_xxx
-  drvalid:LongInt;                         // Contents of dr is valid
-  dr:array[0..NREG-1] of ULong;            // Expected state of DR0..3,7
-  hwmasked:LongInt;                        // Temporarily masked hardware breaks
-  hwreported:LongInt;                      // Reported breakpoint expressions
-  // Thread-related information gathered by Updatethreaddata().
-  hw:HWND;                                 // One of windows owned by thread
-  usertime:ULong;                          // Time in user mode, 100u units or -1
-  systime:ULong;                           // Time in system mode, 100u units or -1
-  // Thread-related information gathered by Listmemory().
-  stacktop:ULong;                          // Top of thread's stack
-  stackbottom:ULong;                       // Bottom of thread's stack
-	end;
-
-function     Findthread(threadid:ULong): P_thread; cdecl; external OLLYDBG name 'Findthread';
-function     Findthreadbyordinal(ordinal:LongInt): P_thread; cdecl; external OLLYDBG name 'Findthreadbyordinal';
-function     Threadregisters(threadid:ULong): P_reg; cdecl; external OLLYDBG name 'Threadregisters';
-function     Decodethreadname(s:PWChar;threadid:ULong;mode:LongInt): LongInt; cdecl; external OLLYDBG name 'Decodethreadname';
-procedure    Registermodifiedbyuser(pthr:P_thread); cdecl; external OLLYDBG name 'Registermodifiedbyuser';
-=======
     threadid: ULong;                        // Thread identifier
     dummy: ULong;                           // Always 1
     _type: ULong;                           // Service information, TY_xxx+THR_xxx
@@ -3509,7 +2404,6 @@ function  Threadregisters(threadid: ULong): p_reg; cdecl; external OLLYDBG name 
 function  Decodethreadname(s: PWChar; threadid: ULong; mode: Integer): Integer; cdecl; external OLLYDBG name 'Decodethreadname';
 procedure Registermodifiedbyuser(pthr: p_thread); cdecl; external OLLYDBG name 'Registermodifiedbyuser';
 
->>>>>>> git  comit
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////// ASSEMBLER AND DISASSEMBLER //////////////////////////
@@ -3918,65 +2812,6 @@ type
 
   p_callpredict = ^t_callpredict;           // Simplified prediction
   t_callpredict = packed record
-<<<<<<< HEAD
-  addr:ULong;                            // Predicted EIP or NULL if uncertain
-  one:ULong;                             // Must be 1
-  stype:ULong;                           // Type of prediction, TY_xxx/PR_xxx
-  eaxstate:ULong;                        // State of EAX, set of PST_xxx
-  eaxconst:ULong;                        // Constant related to EAX
-  nstkmod:LongInt;                       // Number of valid stkmod addresses
-  stkmod:array[0..NSTKMOD-1] of ULong;   // Addresses of stack modifications
-  resstate:ULong;                        // State of result of command execution
-  resconst:ULong;                        // Constant related to result
-	end;
-	
-Const
-// Location of operand, only one bit is allowed.
-OP_SOMEREG     =$000000FF;     // Mask for any kind of register
-OP_REGISTER    =$00000001;     // Operand is a general-purpose register
-OP_SEGREG      =$00000002;     // Operand is a segment register
-OP_FPUREG      =$00000004;     // Operand is a FPU register
-OP_MMXREG      =$00000008;     // Operand is a MMX register
-OP_3DNOWREG    =$00000010;     // Operand is a 3DNow! register
-OP_SSEREG      =$00000020;     // Operand is a SSE register
-OP_CREG        =$00000040;     // Operand is a control register
-OP_DREG        =$00000080;     // Operand is a debug register
-OP_MEMORY      =$00000100;     // Operand is in memory
-OP_CONST       =$00000200;     // Operand is an immediate constant
-OP_PORT        =$00000400;     // Operand is an I/O port
-// Additional operand properties.
-OP_INVALID     =$00001000;     // Invalid operand, like reg in mem-only
-OP_PSEUDO      =$00002000;     // Pseudooperand (not in mnenonics)
-OP_MOD         =$00004000;     // Command may change/update operand
-OP_MODREG      =$00008000;     // Memory, but modifies reg (POP,MOVSD)
-OP_REL         =$00010000;     // Relative or fixuped const or address
-OP_IMPORT      =$00020000;     // Value imported from different module
-OP_SELECTOR    =$00040000;     // Includes immediate selector
-// Additional properties of memory address.
-OP_INDEXED     =$00080000;     // Memory address contains registers
-OP_OPCONST     =$00100000;     // Memory address contains constant
-OP_ADDR16      =$00200000;     // 16-bit memory address
-OP_ADDR32      =$00400000;     // Explicit 32-bit memory address
-// Value of operand.
-OP_OFFSOK      =$00800000;     // Offset to selector valid
-OP_ADDROK      =$01000000;     // Address valid
-OP_VALUEOK     =$02000000;     // Value (max. 16 bytes) valid
-OP_PREDADDR    =$04000000;     // Address predicted, not actual
-OP_PREDVAL     =$08000000;     // Value predicted, not actual
-OP_RTLOGMEM    =$10000000;     // Memory contents got from run trace
-OP_ACTVALID    =$20000000;     // Actual value is valid
-// Pseudooperands, used in assembler search models only.
-OP_ANYMEM      =$40000000;     // Any memory location
-OP_ANY         =$80000000;     // Any operand
-
-Type
-
-t_operand_union = record
-  case BYTE of
-  0: (u: ULong);                            // Value of operand (LongInt form)
-  1: (s: Long);                             // Value of operand (signed form)
-  2: (value:array[0..15] of UChar);         // Value of operand (general form)
-=======
     addr: ULong;                            // Predicted EIP or NULL if uncertain
     one: ULong;                             // Must be 1
     _type: ULong;                           // type of prediction, TY_xxx/PR_xxx
@@ -3986,7 +2821,6 @@ t_operand_union = record
     stkmod: array[0..NSTKMOD-1] of ULong;   // Addresses of stack modifications
     resstate: ULong;                        // State of result of command execution
     resconst: ULong;                        // Constant related to result
->>>>>>> git  comit
   end;
 
 const
@@ -4261,54 +3095,6 @@ type
 
   p_asmlist = ^t_asmlist;                   // Descriptor of the sequence of models
   t_asmlist = packed record
-<<<<<<< HEAD
-  pasm:P_asmmod;                         // Pointer to the start of the sequence
-  length:LongInt;                        // Length of the sequence, models
-  comment:array[0..TEXTLEN-1] of WChar;  // Comment to the sequence
-	end;
-	
-Const
-DA_TEXT        =$00000001;               // Decode command to text and comment
-DA_HILITE      =$00000002;               // Use syntax highlighting (set t_disasm)
-DA_OPCOMM      =$00000004;               // Comment operands
-DA_DUMP        =$00000008;               // Dump command to hexadecimal text
-DA_MEMORY      =$00000010;               // OK to read memory and use labels
-DA_NOIMPORT    =$00000020;               // When reading memory, hold the imports
-DA_RTLOGMEM    =$00000040;               // Use memory saved by run trace
-DA_NOSTACKP    =$00000080;               // Hide "Stack" prefix in comments
-DA_STEPINTO    =$00000100;               // Enter CALL when predicting registers
-DA_SHOWARG     =$00000200;               // Use predict if address ESP/EBP-based
-DA_NOPSEUDO    =$00000400;               // Skip pseudooperands
-DA_FORHELP     =$00000800;               // Decode operands for command help
-USEDECODE      =1;                       // Request to get decoding automatically
-
-
-function     Byteregtodwordreg(bytereg:LongInt): LongInt; cdecl; external OLLYDBG name 'Byteregtodwordreg';
-function     Printfloat4(s:PWChar;f:double): LongInt; cdecl; external OLLYDBG name 'Printfloat4';
-function     Printfloat8(s:PWChar;d:double): LongInt; cdecl; external OLLYDBG name 'Printfloat8';
-function     Printfloat10(s:PWChar;ext:Extended): LongInt; cdecl; external OLLYDBG name 'Printfloat10';
-function     Printmmx(s:PWChar;data:PUChar): LongInt; cdecl; external OLLYDBG name 'Printmmx';
-function     Commentcharacter(s:PWChar;c:LongInt;mode:LongInt): LongInt; cdecl; external OLLYDBG name 'Commentcharacter';
-function     Nameoffloat(s:PWChar;data:PUChar;size:ULong ): LongInt; cdecl; external OLLYDBG name 'Nameoffloat';
-function     _Disasm(cmd:PUChar;cmdsize:ULong;ip:ULong;dec:PUChar;da:P_disasm;mode:LongInt;reg:P_reg;
-                    predict:P_predict): ULong; cdecl; external OLLYDBG name 'Disasm';
-function     Cmdinfo(cmd:PUChar;cmdsize:ULong;cmdip:ULong;
-                    ci:P_cmdinfo;cmdmode:LongInt;cmdreg:P_reg): ULong; cdecl; external OLLYDBG name 'Cmdinfo';
-function     Disassembleforward(copy:PUChar;base:ULong;size:ULong;ip:ULong;n:ULong;decode:PUChar): ULong; cdecl; external OLLYDBG name 'Disassembleforward';
-function     Disassembleback(copy:PUChar;base:ULong;size:ULong;ip:ULong;n:ULong;decode:PUChar): ULong; cdecl; external OLLYDBG name 'Disassembleback';
-function     Checkcondition(code:LongInt;flags:ULong): LongInt; cdecl; external OLLYDBG name 'Checkcondition';
-function     Setcondition(code:LongInt;flags:ULong): ULong; cdecl; external OLLYDBG name 'Setcondition';
-
-Const
-AM_ALLOWBAD    =$00000001;     // Allow bad or undocumented commands
-AM_IMPRECISE   =$00000002;     // Generate imprecise (search) forms
-AM_MULTI       =$00000004;     // Multiple commands are allowed
-AM_SEARCH      =AM_IMPRECISE;
-
-function  Assembleallforms(src:PWChar;ip:ULong;model:P_asmmod;maxmodel:LongInt;mode:LongInt;errtxt:PWChar): LongInt; cdecl; external OLLYDBG name 'Assembleallforms';
-function  Assemble(src:PWChar;ip:ULong;buf:PUChar;nbuf:ULong;mode:LongInt;errtxt:PWChar): ULong; cdecl; external OLLYDBG name 'Assemble';
-                  
-=======
     pasm: p_asmmod;                         // Pointer to the start of the sequence
     length: Integer;                        // Length of the sequence, models
     comment: array[0..TEXTLEN-1] of WChar;  // Comment to the sequence
@@ -4362,7 +3148,6 @@ function  Assemble(src: PWChar; ip: ULong; buf: PUChar; nbuf: ULong; mode: Integ
             errtxt: PWChar): ULong; cdecl; external OLLYDBG name 'Assemble';
 
 
->>>>>>> git  comit
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////// .NET DISASSEMBLER ///////////////////////////////
 const
@@ -4414,29 +3199,6 @@ const
 type
   p_netasm = ^t_netasm;                     // Disassembled .NET CIL command
   t_netasm = packed record
-<<<<<<< HEAD
-  ip:ULong;                              // Address of first command byte
-  size:ULong;                            // Full length of command, bytes
-  cmdtype:ULong;                         // Type of command, N_xxx
-  cmdsize:ULong;                         // Size of command, bytes
-  opsize:ULong;                          // Size of operand, bytes, or 0 if none
-  nswitch:ULong;                         // Size of following switch table, dwords
-  jmpaddr:ULong;                         // Single jump/call destination or 0
-  descriptor:ULong;                      // Descriptor (xx)xxxxxx or 0
-  dataaddr:ULong;                        // Address of pointed object/data or 0
-  errors:LongInt;                        // Set of DAE_xxx
-  // Description of operand.
-  optype:ULong;                          // Operand type, set of A_xxx
-  optext:array[0..TEXTLEN-1] of WChar;   // Operand, decoded to text
-  // Textual decoding.
-  dump:array[0..TEXTLEN-1] of WChar;     // Hex dump of the command
-  result:array[0..TEXTLEN-1] of WChar;   // Fully decoded command as text
-  comment:array[0..TEXTLEN-1] of WChar;  // Comment that applies to whole command
-	end;
-
-function   Ndisasm(cmd:PUChar;size:ULong;ip:ULong;da:P_netasm;
-                   mode:LongInt;pmod:P_module): ULong; cdecl; external OLLYDBG name 'Ndisasm';
-=======
     ip: ULong;                              // Address of first command byte
     size: ULong;                            // Full length of command, bytes
     cmdtype: ULong;                         // type of command, N_xxx
@@ -4460,7 +3222,6 @@ function  Ndisasm(cmd: PUChar; size: ULong; ip: ULong; da: p_netasm;
             mode: Integer; pmod: p_module): ULong; cdecl; external OLLYDBG name 'Ndisasm';
 
 
->>>>>>> git  comit
 ////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////// ANALYSIS ///////////////////////////////////
 const
@@ -4508,55 +3269,6 @@ type
     aprev: ULong;                           // First address of previous range
   end;
 
-<<<<<<< HEAD
-P_procdata = ^t_procdata;                // Description of procedure
-  t_procdata = packed record
-  addr:ULong;                            // Address of entry point
-  size:ULong;                            // Size of simple procedure or 1
-  stype:ULong;                           // Type of procedure, TY_xxx/PD_xxx
-  retsize:ULong;                         // Size of return (if PD_RETSIZE)
-  localsize:ULong;                       // Size of reserved locals, 0 - unknown
-  savedebp:ULong;                        // Offset of cmd after PUSH EBP, 0 - none
-  features:ULong;                        // Type of known code, RAW_xxx
-  generic:array[0..11] of char;          // Generic name (without _INTERN_)
-  narg:LongInt;                          // No. of stack DWORDs (PD_NARG/VARARG)
-  nguess:LongInt;                        // Number of guessed args (if PD_NGUESS)
-  npush:LongInt;                         // Number of pushed args (if PD_NPUSH)
-  usedarg:LongInt;                       // Min. number of accessed arguments
-  preserved:UChar;                       // Preserved registers
-  argopt:array[0..NGUESS-1] of UChar;    // Guessed argument options, AO_xxx
-	end;
-
-P_argnest= ^t_argnest;                   // Header of call arguments bracket
-  t_argnest = packed record            
-  addr0:ULong;                           // First address occupied by range
-  addr1:ULong;                           // Last occupied address (included!)
-  stype:ULong;                           // Level and user-defined type, TY_xxx
-  aprev:ULong;                           // First address of previous range
-	end;
-
-Type
-
-t_loopvar = record
-  stype:UChar;                           // Combination of PRED_xxx
-  espoffset:Long;                        // For locals, offset to original ESP
-  increment:Long;                        // Increment after loop
-	end;
-	
-P_loopnest = ^t_loopnest;                // Header of loop bracket
-  t_loopnest = packed record
-  addr0:ULong;                           // First address occupied by range
-  addr1:ULong;                           // Last occupied address (included!)
-  stype:ULong;                           // Level and user-defined type, TY_xxx
-  aprev:ULong;                           // First address of previous range
-  eoffs:ULong;                           // Offset of entry point from addr0
-  loopvar:array[0..NLOOPVAR-1] of t_loopvar;
-	end;
-
-function     Getpackednetint(code:PUChar;size:ULong;value:PULong): ULong; cdecl; external OLLYDBG name 'Getpackednetint';
-procedure    Removeanalysis(base:ULong;size:ULong;keephittrace: LongInt); cdecl; external OLLYDBG name 'Removeanalysis';
-function     Maybecommand(addr:ULong;requireanalysis:LongInt): LongInt; cdecl; external OLLYDBG name 'Maybecommand';
-=======
 const
   NLOOPVAR       = 4;                       // Max number of loop variables
 
@@ -4582,7 +3294,6 @@ function  Getpackednetint(code: PUChar; size: ULong; value: PULong): ULong; cdec
 procedure Removeanalysis(base: ULong; size: ULong; keephittrace: Integer); cdecl; external OLLYDBG name 'Removeanalysis';
 function  Maybecommand(addr: ULong; requireanalysis: Integer): Integer; cdecl; external OLLYDBG name 'Maybecommand';
 
->>>>>>> git  comit
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////// STACK WALK //////////////////////////////////
@@ -4622,68 +3333,6 @@ type
 function  Isretaddr(retaddr: ULong; procaddr: PULong): ULong; cdecl; external OLLYDBG name 'Isretaddr';
 function  Findretaddrdata(pf: p_sframe; base: ULong; size: ULong): Integer; cdecl; external OLLYDBG name 'Findretaddrdata';
 
-<<<<<<< HEAD
-function     Isretaddr(retaddr:ULong;procaddr:PULong):ULong; cdecl; external OLLYDBG name 'Isretaddr';
-function     Findretaddrdata(pf:P_sframe;base:ULong;size:ULong): LongInt; cdecl; external OLLYDBG name 'Findretaddrdata';
-
-////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////// KNOWN FUNCTIONS ////////////////////////////////
-Const
-
-NARG           =24;                            // Max number of arguments in a function
-
-ADEC_VALID     =$00000001;                     // Value valid
-ADEC_PREDICTED =$00000002;                     // Value predicted
-ADEC_CHGNAME   =$00000004;                     // Allow name change of substituted arg
-ADEC_MARK      =$00000008;                     // (out) Important parameter
-
-// Type of argument in the description of function or structure. Note that
-// ARG_STRUCT is allowed only in conjunction with ARG_POINTER.
-ARG_POINTER    =$01;                           // Argument is a pointer
-ARG_BASE       =$06;                           // Mask to extract base type of argument
-ARG_TYPE       =$00;                           // Argument is a type
-ARG_STRUCT     =$02;                           // Argument is a structure
-ARG_DIRECT     =$04;                           // Argument is a direct string
-ARG_OUT        =$08;                           // Pointer to data undefined at call
-ARG_MARK       =$10;                           // Important parameter
-ARG_ELLIPSYS   =$20;                           // Followed by ellipsys
-ARG_VALID      =$40;                           // Must always be set to avoid argx=0
-
-ARG_TYPEMASK   =(ARG_POINTER OR ARG_BASE);     // Mask to extract full type
-
-ARG_PTYPE      =(ARG_POINTER OR ARG_TYPE);     // Pointer to type
-ARG_PSTRUCT    =(ARG_POINTER OR ARG_STRUCT);   // Pointer to structure
-
-// Bits used to define type of function.
-FN_C           =$00000001;                     // Does not remove arguments from stack
-FN_PASCAL      =$00000002;                     // Removes arguments from stack on return
-FN_NORETURN    =$00000004;                     // Does not return, like ExitProcess()
-FN_VARARG      =$00000008;                     // Variable number of arguments
-FN_EAX         =$00000100;                     // EAX on return is same as on entry
-FN_ECX         =$00000200;                     // ECX on return is same as on entry
-FN_EDX         =$00000400;                     // EDX on return is same as on entry
-FN_EBX         =$00000800;                     // EBX on return is same as on entry
-FN_ESP         =$00001000;                     // ESP on return is same as on entry
-FN_EBP         =$00002000;                     // EBP on return is same as on entry
-FN_ESI         =$00004000;                     // ESI on return is same as on entry
-FN_EDI         =$00008000;                     // EDI on return is same as on entry
-FN_USES_EAX    =$00010000;                     // EAX is used as register parameter
-FN_USES_ECX    =$00020000;                     // ECX is used as register parameter
-FN_USES_EDX    =$00040000;                     // EDX is used as register parameter
-FN_USES_EBX    =$00080000;                     // EBX is used as register parameter
-FN_USES_ESP    =$00100000;                     // ESP is used as register parameter
-FN_USES_EBP    =$00200000;                     // EBP is used as register parameter
-FN_USES_ESI    =$00400000;                     // ESI is used as register parameter
-FN_USES_EDI    =$00800000;                     // EDI on return is same as on entry
-
-FN_FUNCTION    =0;
-FN_STDFUNC     =(FN_PASCAL OR FN_EBX OR FN_EBP OR FN_ESI OR FN_EDI);
-FN_STDC        =(FN_C OR FN_EBX OR FN_EBP OR FN_ESI OR FN_EDI);
-
-Type
-
-P_argdec  = ^t_argdec;                         // Descriptor of function argument
-=======
 
 ////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////// KNOWN FUNCTIONS ////////////////////////////////
@@ -4740,7 +3389,6 @@ const
 
 type
   p_argdec  = ^t_argdec;                    // Descriptor of function argument
->>>>>>> git  comit
   t_argdec = packed record
     mode: ULong;                            // Value descriptor, set of ADEC_xxx
     value: ULong;                           // Value on the stack
@@ -4780,38 +3428,6 @@ type
 
   p_argloc = ^t_argloc;                      // Information about stack args & locals
   t_argloc = packed record
-<<<<<<< HEAD
-  fntype:ULong;                                // Calling convention, set of FN_xxx
-  retfeatures:LongInt;                         // Return features, set of ARG_xxx
-  retsize:LongInt;                             // Size of returned value
-  rettype:array[0..SHORTNAME-1] of WChar;      // Type of the returned value
-  argvalid:LongInt;                            // Whether arg[] below is valid
-  arg:array[0..NARG-1] of t_arg;
-	end;
-
-function    Getconstantbyname(name:PWChar;value:PULong): LongInt; cdecl; external OLLYDBG name 'Getconstantbyname';
-function    Getconstantbyvalue(groupname:PWChar;
-                   value:ULong;name:PWChar): LongInt; cdecl; external OLLYDBG name 'Getconstantbyvalue';
-function    Decodetype(data:ULong;dtype:PWChar;text:PWChar;ntext:LongInt): LongInt; cdecl; external OLLYDBG name 'Decodetype';
-function    Fillcombowithgroup(hw:HWND;groupname:PWChar;
-                   sortbyname:LongInt;select:ULong): LongInt; cdecl; external OLLYDBG name 'Fillcombowithgroup';
-function    Fillcombowithstruct(hw:HWND;prefix:PWChar;select:PWChar): LongInt; cdecl; external OLLYDBG name 'Fillcombowithstruct';
-function    Getrawdata(name:PWChar): P_rawdata; cdecl; external OLLYDBG name 'Getrawdata';
-function    Substitutehkeyprefix(key:PWChar): LongInt; cdecl; external OLLYDBG name 'Substitutehkeyprefix';
-function    Decodeknownbyname(name:PWChar;pd:P_procdata;
-                    adec:P_argdec;rettype:PWChar;nexp:integer): LongInt; cdecl; external OLLYDBG name 'Decodeknownbyname';
-function    Decodeknownbyaddr(addr:ULong;pd:P_procdata;adec:P_argdec;rettype:PWChar;name:PWChar;
-                    nexp:integer;follow:integer): LongInt; cdecl; external OLLYDBG name 'Decodeknownbyaddr';
-function    Isnoreturn(addr:ULong): LongInt; cdecl; external OLLYDBG name 'Isnoreturn';
-function    Decodeargument(pmod:P_module;prtype:PWChar;data:pointer;
-                    ndata:LongInt;text:PWChar;ntext:LongInt;nontriv:PInteger): LongInt; cdecl; external OLLYDBG name 'Decodeargument';
-function    Getstructureitemcount(name:PWChar;size:PULong): LongInt; cdecl; external OLLYDBG name 'Getstructureitemcount';
-function    Findstructureitembyoffset(name:PWChar;offset:ULong): LongInt; cdecl; external OLLYDBG name 'Findstructureitembyoffset';
-function    Decodestructure(name:PWChar;addr:ULong;item0:LongInt;
-                    str:P_strdec;nstr:LongInt): LongInt; cdecl; external OLLYDBG name 'Decodestructure';
-function    Getstructureitemvalue(code:PUChar;ncode:ULong;
-                    name:PWChar;itemname:PWChar;value:Pointer;nvalue:ULong): ULong; cdecl; external OLLYDBG name 'Getstructureitemvalue';
-=======
     fntype: ULong;                          // Calling convention, set of FN_xxx
     retfeatures: Integer;                   // Return features, set of ARG_xxx
     retsize: Integer;                       // Size of returned value
@@ -4844,7 +3460,6 @@ function  Decodestructure(name: PWChar; addr: ULong; item0: Integer;
 function  Getstructureitemvalue(code: PUChar; ncode: ULong;
             name: PWChar; itemname: PWChar; value: Pointer; nvalue: ULong): ULong; cdecl; external OLLYDBG name 'Getstructureitemvalue';
 
->>>>>>> git  comit
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////// EXPRESSIONS, WATCHES AND INSPECTORS /////////////////////
@@ -4894,25 +3509,6 @@ type
 
   p_watch  = ^t_watch;                      // Watch descriptor
   t_watch = packed record
-<<<<<<< HEAD
-  addr:ULong;                         // 0-based watch index
-  size:ULong;                         // Reserved, always 1
-  stype:ULong;                        // Service information, TY_xxx
-  expr:array[0..TEXTLEN-1] of WChar;  // Watch expression
-	end;
-
-function    Cexpression(expression:PWChar;cexpr:PUChar;nexpr:LongInt;
-                   explen:PInteger;err:PWChar;mode:ULong):LongInt; cdecl; external OLLYDBG name 'Cexpression';
-function    Exprcount(cexpr:PUChar):LongInt; cdecl; external OLLYDBG name 'Exprcount';
-function    Eexpression(result:P_result;expl:PWChar;cexpr:PUChar;
-                   index:LongInt;data:PUChar;base:ULong;size:ULong;threadid:ULong;
-                   a:ULong;b:ULong;mode:ULong):LongInt; cdecl; external OLLYDBG name 'Eexpression';
-function    Expression(result:P_result;expression:PWChar;data:PUChar;
-                   base:ULong;size:ULong;threadid:ULong;a:ULong;b:ULong;
-                   mode:ULong):LongInt; cdecl; external OLLYDBG name 'Expression';
-function    Fastexpression(result:P_result;addr:ULong;ltype:LongInt;
-                   threadid:ULong):LongInt; cdecl; external OLLYDBG name 'Fastexpression';
-=======
     addr: ULong;                            // 0-based watch index
     size: ULong;                            // Reserved, always 1
     _type: ULong;                           // Service information, TY_xxx
@@ -4931,7 +3527,6 @@ function  Expression(result: p_result; expression: PWChar; data: PUChar;
 function  Fastexpression(result: p_result; addr: ULong; itype: Integer;
             threadid: ULong): Integer; cdecl; external OLLYDBG name 'Fastexpression';
 
->>>>>>> git  comit
 
 ////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////// DIALOGS AND OPTIONS //////////////////////////////
@@ -5111,77 +3706,6 @@ type
   // ATTENTION, size of structure t_hexstr must not exceed DATALEN!
   p_hexstr = ^t_hexstr;                     // Data for hex/text search
   t_hexstr = packed record
-<<<<<<< HEAD
-  n:ULong;                          // Data length, bytes
-  nmax:ULong;                       // Maximal data length, bytes
-  data:array[0..HEXLEN-1] of UChar; // Data
-  mask:array[0..HEXLEN-1] of UChar; // Mask, 0 bits are masked
-	end;
-Type
-
-BROWSECODEFUNC = function(int:LongInt;void:Pointer;zULong:PULong;zPWChar:PWChar): LongInt; cdecl;
-	
-function     Findcontrol(hw:HWND): P_control; cdecl; external OLLYDBG name 'Findcontrol';
-function     Defaultactions(hparent:HWND;pctr:P_control;wp:WPARAM;lp:LPARAM ): LongInt; cdecl; external OLLYDBG name 'Defaultactions';
-procedure    Addstringtocombolist(hc:HWND;s:PWChar); cdecl; external OLLYDBG name 'Addstringtocombolist';
-function     Preparedialog(hw:HWND;pdlg:P_dialog): LongInt; cdecl; external OLLYDBG name 'Preparedialog';
-function     Endotdialog(hw:HWND;result:LongInt): LongInt; cdecl; external OLLYDBG name 'Endotdialog';
-function     Getregister(hparent:HWND;reg:LongInt;data:PULong;letter:LongInt;
-                   x:LongInt;y:LongInt;fi:LongInt;mode:LongInt ): LongInt; cdecl; external OLLYDBG name 'Getregister';
-function     GetInteger(hparent:HWND;title:PWChar;data:PULong;letter:LongInt ;
-                   x:LongInt;y:LongInt;fi:LongInt;mode:LongInt ): LongInt; cdecl; external OLLYDBG name 'GetInteger';
-function     Getdword(hparent:HWND;title:PWChar;data:PULong;letter:LongInt;
-                   x:LongInt;y:LongInt;fi:LongInt;mode:LongInt): LongInt; cdecl; external OLLYDBG name 'Getdword';
-function     Getlasterrorcode(hparent:HWND;title:PWChar;data:PULong;
-                   letter:LongInt;x:LongInt;y:LongInt;fi:LongInt): LongInt; cdecl; external OLLYDBG name 'Getlasterrorcode';
-function     Getaddressrange(hparent:HWND;title:PWChar;
-                   rmin:PULong;rmax:PULong;x:LongInt;y:LongInt;fi:LongInt;mode:LongInt): LongInt; cdecl; external OLLYDBG name 'Getaddressrange';
-function     Getexceptionrange(hparent:HWND;title:PWChar;
-                   rmin:PULong;rmax:PULong;x:LongInt;y:LongInt;fi:LongInt): LongInt; cdecl; external OLLYDBG name 'Getexceptionrange';
-function     Getstructuretype(hparent:HWND;title:PWChar;text:PWChar;
-                   strname:PWChar;x:LongInt;y:LongInt;fi:LongInt): LongInt; cdecl; external OLLYDBG name 'Getstructuretype';
-function     Getfpureg(hparent:HWND ;reg:LongInt;data:pointer;letter:LongInt ;
-                   x:LongInt ;y:LongInt ;fi:LongInt): LongInt; cdecl; external OLLYDBG name 'Getfpureg';
-function     Get3dnow(hparent:HWND;title:PWChar;data:pointer;letter:LongInt;
-                   x:LongInt ;y:LongInt;fi:LongInt;mode:LongInt): LongInt; cdecl; external OLLYDBG name 'Get3dnow';
-function     Getfloat(hparent:HWND;title:PWChar;data:pointer;letter:LongInt ;
-                   x:LongInt ;y:LongInt;fi:LongInt;mode:LongInt): LongInt; cdecl; external OLLYDBG name 'Getfloat';
-function     Getmmx(hparent:HWND;title:PWChar;data:pointer;letter:LongInt;
-                   x:LongInt;y:LongInt;fi:LongInt): LongInt; cdecl; external OLLYDBG name 'Getmmx';
-function     Getsse(hparent:HWND;title:PWChar;data:pointer;letter:LongInt;
-                   x:LongInt;y:LongInt;fi:LongInt;mode:LongInt): LongInt; cdecl; external OLLYDBG name 'Getsse';
-function     Getstring(hparent:HWND;title:PWChar;s:PWChar;length:LongInt;
-                   savetype:LongInt;letter:LongInt;x:LongInt;y:LongInt;fi:LongInt;mode:LongInt): LongInt; cdecl; external OLLYDBG name 'Getstring';
-function     Getdwordexpression(hparent:HWND;title:PWChar;u:PULong;
-                   threadid:ULong;savetype:LongInt;x:LongInt;y:LongInt;fi:LongInt ;mode:LongInt): LongInt; cdecl; external OLLYDBG name 'Getdwordexpression';
-function     Getgotoexpression(hparent:HWND;title:PWChar;u:PULong;
-                   threadid:ULong;savetype:LongInt;x:LongInt;y:LongInt;fi:LongInt;mode:LongInt): LongInt; cdecl; external OLLYDBG name 'Getgotoexpression';
-function     Getasmsearchmodel(hparent:HWND;title:PWChar;model:P_asmmod;
-                   nmodel:LongInt;x:LongInt;y:LongInt;fi:LongInt ;mode:LongInt): LongInt; cdecl; external OLLYDBG name 'Getasmsearchmodel';
-function     Getseqsearchmodel(hparent:HWND;title:PWChar;model:P_asmmod;
-                   nmodel:LongInt;x:LongInt;y:LongInt;fi:LongInt ;mode:LongInt): LongInt; cdecl; external OLLYDBG name 'Getseqsearchmodel';
-function     Binaryedit(hparent:HWND;title:PWChar;hstr:P_hexstr;
-                   letter:LongInt;x:LongInt;y:LongInt;fi:LongInt;mode:LongInt): LongInt; cdecl; external OLLYDBG name 'Binaryedit';
-function     Getpredefinedtypebyindex(fnindex:LongInt;itype:PWChar): LongInt; cdecl; external OLLYDBG name 'Getpredefinedtypebyindex';
-function     Getindexbypredefinedtype(itype:PWChar): LongInt; cdecl; external OLLYDBG name 'Getindexbypredefinedtype';
-function     Condbreakpoint(hparent:HWND;addr:PULong;naddr:LongInt;
-                   title:PWChar;x:LongInt;y:LongInt;fi:LongInt): LongInt; cdecl; external OLLYDBG name 'Condbreakpoint';
-function     Condlogbreakpoint(hparent:HWND;addr:PULong;naddr:LongInt;
-                   fnindex:LongInt;title:PWChar;x:LongInt;y:LongInt;fi:LongInt): LongInt; cdecl; external OLLYDBG name 'Condlogbreakpoint';
-function     Membreakpoint(hparent:HWND;addr:ULong;size:ULong ;
-                   x:LongInt;y:LongInt;fi:LongInt;mode:LongInt): LongInt; cdecl; external OLLYDBG name 'Membreakpoint';
-function     Memlogbreakpoint(hparent:HWND;addr:ULong ;size:ULong ;
-                   x:LongInt;y:LongInt;fi:LongInt;mode:LongInt): LongInt; cdecl; external OLLYDBG name 'Memlogbreakpoint';
-function     Hardbreakpoint(hparent:HWND;addr:ULong;
-                   x:LongInt;y:LongInt;fi:LongInt;mode:LongInt): LongInt; cdecl; external OLLYDBG name 'Hardbreakpoint';
-function     Hardlogbreakpoint(hparent:HWND;addr:ULong;fnindex:LongInt ;
-                   x:LongInt;y:LongInt;fi:LongInt;mode:LongInt): LongInt; cdecl; external OLLYDBG name 'Hardlogbreakpoint';
-procedure    Setrtcond(hparent:HWND;x:LongInt;y:LongInt;fi:LongInt); cdecl; external OLLYDBG name 'Setrtcond';
-procedure    Setrtprot(hparent:HWND;x:LongInt;y:LongInt;fi:LongInt); cdecl; external OLLYDBG name 'Setrtprot';
-function     Browsecodelocations(hparent:HWND;title:PWChar;
-                   bccallback:BROWSECODEFUNC;data:pointer): ULong; cdecl; external OLLYDBG name 'Browsecodelocations';
-function     Fillcombowithcodepages(hw:HWND;select:LongInt): LongInt; cdecl; external OLLYDBG name 'Fillcombowithcodepages';
-=======
     n: ULong;                               // Data length, bytes
     nmax: ULong;                            // Maximal data length, bytes
     data: array[0..HEXLEN-1] of UChar;      // Data
@@ -5252,7 +3776,6 @@ function  Browsecodelocations(hparent: HWND; title: PWChar;
             bccallback: BROWSECODEFUNC; data: Pointer): ULong; cdecl; external OLLYDBG name 'Browsecodelocations';
 function  Fillcombowithcodepages(hw: HWND; select: Integer): Integer; cdecl; external OLLYDBG name 'Fillcombowithcodepages';
 
->>>>>>> git  comit
 
 ////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////// PLUGIN OPTIONS ////////////////////////////////
@@ -5325,34 +3848,6 @@ const
 ////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////// COMMENTS ///////////////////////////////////
 
-<<<<<<< HEAD
-// Comments types used by Commentaddress().
-COMM_USER      =$00000001;     // Add user-defined comment
-COMM_MARK      =$00000002;     // Add important arguments
-COMM_PROC      =$00000004;     // Add procedure description
-COMM_ALL       =$FFFFFFFF;     // Add all possible comments
-
-function     Stringtotext(data:PWChar;ndata:LongInt;text:PWChar;ntext:LongInt;
-                   stopatzero:LongInt): LongInt; cdecl; external OLLYDBG name 'Stringtotext';
-function     Isstring(addr:ULong;isstatic:LongInt;symb:PWChar;nsymb:LongInt): LongInt; cdecl; external OLLYDBG name 'Isstring';
-function     Squeezename(dest:PWChar;ndest:LongInt;src:PWChar;nsrc:LongInt): LongInt; cdecl; external OLLYDBG name 'Squeezename';
-procedure    Uncapitalize(s:PWChar); cdecl; external OLLYDBG name 'Uncapitalize';
-function     Decoderelativeoffset(addr:ULong;addrmode:LongInt;
-                   symb:PWChar;nsymb:LongInt): LongInt; cdecl; external OLLYDBG name 'Decoderelativeoffset';
-function     Decodeaddress(addr:ULong;amod:ULong;mode:LongInt;
-                   symb:PWChar;nsymb:LongInt;comment:PWChar): LongInt; cdecl; external OLLYDBG name 'Decodeaddress';
-function     Decodearglocal(uip:Long;offs:ULong;datasize:ULong;
-                   name:PWChar;len:LongInt): LongInt; cdecl; external OLLYDBG name 'Decodearglocal';
-function     Getanalysercomment(pmod:P_module;addr:ULong;
-                   comment:PWChar;len:LongInt): LongInt; cdecl; external OLLYDBG name 'Getanalysercomment';
-function     Getswitchcomment(addr:ULong;comment:PWChar;len:LongInt): LongInt; cdecl; external OLLYDBG name 'Getswitchcomment';
-function     Getloopcomment(pmod:P_module;addr:ULong;level:LongInt;
-                   comment:PWChar;len:LongInt): LongInt; cdecl; external OLLYDBG name 'Getloopcomment';
-function     Getproccomment(addr:ULong;acall:ULong;
-                   comment:PWChar;len:LongInt;argonly:LongInt): LongInt; cdecl; external OLLYDBG name 'Getproccomment';
-function     Commentaddress(addr:ULong;typelist:LongInt;
-                   comment:PWChar;len:LongInt): LongInt; cdecl; external OLLYDBG name 'Commentaddress';
-=======
   // Comments types used by Commentaddress().
   COMM_USER      = $00000001;               // Add user-defined comment
   COMM_MARK      = $00000002;               // Add important arguments
@@ -5380,151 +3875,11 @@ function  Getproccomment(addr: ULong; acall: ULong;
 function  Commentaddress(addr: ULong; typelist: Integer;
             comment: PWChar; len: Integer): Integer; cdecl; external OLLYDBG name 'Commentaddress';
 
->>>>>>> git  comit
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////// LOG WINDOW //////////////////////////////////
 
 procedure   Redrawlist; cdecl; external OLLYDBG name 'Redrawlist';
-<<<<<<< HEAD
-procedure   Addtolist(addr:ULong;color:LongInt;format:PWChar); cdecl; varargs; external OLLYDBG name 'Addtolist';
-////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////// DUMP /////////////////////////////////////
-Const
-
-DU_STACK       =$80000000;     // Used for internal purposes
-DU_NOSMALL     =$40000000;     // Used for internal purposes
-DU_MODEMASK    =$3C000000;     // Mask for mode bits
-DU_SMALL       =$20000000;     // Small-size dump
-DU_FIXADDR     =$10000000;     // Fix first visible address
-DU_BACKUP      =$08000000;     // Display backup instead of actual data
-DU_USEDEC      =$04000000;     // Show contents using decoding data
-DU_COMMMASK    =$03000000;     // Mask for disassembly comments
-DU_COMMENT     =$00000000;     // Show comments
-DU_SOURCE      =$01000000;     // Show source
-DU_DISCARD     =$00800000;     // Discardable by Esc
-DU_PROFILE     =$00400000;     // Show profile
-DU_TYPEMASK    =$003F0000;     // Mask for dump type
-  DU_HEXTEXT   =$00010000;     // Hexadecimal dump with ASCII text
-  DU_HEXUNI    =$00020000;     // Hexadecimal dump with UNICODE text
-  DU_TEXT      =$00030000;     // Character dump
-  DU_UNICODE   =$00040000;     // Unicode dump
-  DU_INT       =$00050000;     // LongInt signed dump
-  DU_UINT      =$00060000;     // LongInt unsigned dump
-  DU_IHEX      =$00070000;     // LongInt hexadecimal dump
-  DU_FLOAT     =$00080000;     // Floating-point dump
-  DU_ADDR      =$00090000;     // Address dump
-  DU_ADRASC    =$000A0000;     // Address dump with ASCII text
-  DU_ADRUNI    =$000B0000;     // Address dump with UNICODE text
-  DU_DISASM    =$000C0000;     // Disassembly
-  DU_DECODE    =$000D0000;     // Same as DU_DISASM but for decoded data
-DU_COUNTMASK   =$0000FF00;     // Mask for number of items/line
-DU_SIZEMASK    =$000000FF;     // Mask for size of single item
-
-DU_MAINPART    =(DU_TYPEMASK OR DU_COUNTMASK OR DU_SIZEMASK);
-
-DUMP_HEXA8     =$00010801;     // Hex/ASCII dump, 8 bytes per line
-DUMP_HEXA16    =$00011001;     // Hex/ASCII dump, 16 bytes per line
-DUMP_HEXU8     =$00020801;     // Hex/UNICODE dump, 8 bytes per line
-DUMP_HEXU16    =$00021001;     // Hex/UNICODE dump, 16 bytes per line
-DUMP_ASC32     =$00032001;     // ASCII dump, 32 characters per line
-DUMP_ASC64     =$00034001;     // ASCII dump, 64 characters per line
-DUMP_UNI16     =$00041002;     // UNICODE dump, 16 characters per line
-DUMP_UNI32     =$00042002;     // UNICODE dump, 32 characters per line
-DUMP_UNI64     =$00044002;     // UNICODE dump, 64 characters per line
-DUMP_INT16     =$00050802;     // 16-bit signed LongInt dump, 8 items
-DUMP_INT16S    =$00050402;     // 16-bit signed LongInt dump, 4 items
-DUMP_INT32     =$00050404;     // 32-bit signed LongInt dump, 4 items
-DUMP_INT32S    =$00050204;     // 32-bit signed LongInt dump, 2 items
-DUMP_UINT16    =$00060802;     // 16-bit unsigned LongInt dump, 8 items
-DUMP_UINT16S   =$00060402;     // 16-bit unsigned LongInt dump, 4 items
-DUMP_UINT32    =$00060404;     // 32-bit unsigned LongInt dump, 4 items
-DUMP_UINT32S   =$00060204;     // 32-bit unsigned LongInt dump, 2 items
-DUMP_IHEX16    =$00070802;     // 16-bit hex LongInt dump, 8 items
-DUMP_IHEX16S   =$00070402;     // 16-bit hex LongInt dump, 4 items
-DUMP_IHEX32    =$00070404;     // 32-bit hex LongInt dump, 4 items
-DUMP_IHEX32S   =$00070204;     // 32-bit hex LongInt dump, 2 items
-DUMP_FLOAT32   =$00080404;     // 32-bit floats, 4 items
-DUMP_FLOAT32S  =$00080104;     // 32-bit floats, 1 item
-DUMP_FLOAT64   =$00080208;     // 64-bit floats, 2 items
-DUMP_FLOAT64S  =$00080108;     // 64-bit floats, 1 item
-DUMP_FLOAT80   =$0008010A;     // 80-bit floats
-DUMP_ADDR      =$00090104;     // Address dump
-DUMP_ADDRASC   =$000A0104;     // Address dump with ASCII text
-DUMP_ADDRUNI   =$000B0104;     // Address dump with UNICODE text
-DUMP_DISASM    =$000C0110;     // Disassembly (max. 16 bytes per cmd)
-DUMP_DECODE    =$000D0110;     // Decoded data (max. 16 bytes per line)
-
-// Types of dump menu in t_dump.menutype.
-DMT_FIXTYPE    =$00000001;     // Fixed dump type, no change
-DMT_STRUCT     =$00000002;     // Dump of the structure
-DMT_CPUMASK    =$00070000;     // Dump belongs to CPU window
-DMT_CPUDASM    =$00010000;     // This is CPU Disassembler pane
-DMT_CPUDUMP    =$00020000;     // This is CPU Dump pane
-DMT_CPUSTACK   =$00040000;     // This is CPU Stack pane
-
-// Modes of Scrolldumpwindow().
-SD_REALIGN     =$01;           // Realign on specified address
-SD_CENTERY     =$02;           // Center destination vertically
-
-// Modes of t_dump.dumpselfunc() and Reportdumpselection().
-SCH_SEL0       =$01;           // t_dump.sel0 changed
-SCH_SEL1       =$02;           // t_dump.sel1 changed
-
-// Modes of Copydumpselection().
-CDS_TITLES     =$00000001;     // Prepend window name and column titles
-CDS_NOGRAPH    =$00000002;     // Replace graphical symbols by spaces
-
-Type
-
-P_dump = ^t_dump;                             // Descriptor of dump data and window
-DUMPSELFUNC = procedure(pd:P_dump;mode:LongInt); cdecl;
-
-  t_dump = packed record
-  base:ULong;                                 // Start of memory block or file
-  size:ULong;                                 // Size of memory block or file
-  dumptype:ULong;                             // Dump type, DU_xxx+count+size=DUMP_xxx
-  menutype:ULong;                             // Menu type, set of DMT_xxx
-  itemwidth:ULong;                            // Width of one item, characters
-  threadid:ULong;                             // Use decoding and registers if not 0
-  table:t_table;                              // Dump window is a custom table
-  addr:ULong;                                 // Address of first visible byte
-  sel0:ULong;                                 // Address of first selected byte
-  sel1:ULong;                                 // Last selected byte (not included!)
-  selstart:ULong;                             // Addr of first byte of selection start
-  selend:ULong;                               // Addr of first byte of selection end
-  filecopy:PUChar;                            // Copy of the file or NULL
-  path:array[0..MAXPATH-1] of WChar;          // Name of displayed file
-  backup:PUChar;                              // Old backup of memory/file or NULL
-  strname:array[0..SHORTNAME-1] of WChar;     // Name of the structure to decode
-  decode:PUChar;                              // Local decoding information or NULL
-  bkpath:array[0..MAXPATH-1] of WChar;        // Name of last used backup file
-  relreg:LongInt;                             // Addresses relative to register
-  reladdr:ULong;                              // Addresses relative to this address
-  hilitereg:ULong;                            // One of OP_SOMEREG if reg highlighting
-  hiregindex:LongInt;                         // Index of register to highlight
-  graylimit:ULong;                            // Gray data below this address
-  dumpselfunc: DUMPSELFUNC;                   // Callback indicating change of sel0
-	end;
-
-procedure    Setdumptype(pd:P_dump;dumptype:ULong ); cdecl; external OLLYDBG name 'Setdumptype';
-function     Ensurememorybackup(pmem:P_memory;makebackup:LongInt): LongInt; cdecl; external OLLYDBG name 'Ensurememorybackup';
-procedure    Backupusercode(pm:P_module;force:LongInt); cdecl; external OLLYDBG name 'Backupusercode';
-function     Copydumpselection(pd:P_dump;mode:LongInt): HGLOBAL; cdecl; external OLLYDBG name 'Copydumpselection';
-function     Dumpback(pd:P_dump;addr:ULong;n:LongInt): ULong; cdecl; external OLLYDBG name 'Dumpback';
-function     Dumpforward(pd:P_dump;addr:ULong;n:LongInt): ULong; cdecl; external OLLYDBG name 'Dumpforward';
-function     Scrolldumpwindow(pd:P_dump;addr:ULong;mode:LongInt): ULong; cdecl; external OLLYDBG name 'Scrolldumpwindow';
-function     Alignselection(pd:P_dump;sel0:PULong;sel1:PULong): LongInt; cdecl; external OLLYDBG name 'Alignselection';
-function     Getproclimits(addr:ULong;amin:PULong;amax:PULong): LongInt; cdecl; external OLLYDBG name 'Getproclimits';
-function     Getextproclimits(addr:ULong;amin:PULong;amax:PULong): LongInt; cdecl; external OLLYDBG name 'Getextproclimits';
-function     Newdumpselection(pd:P_dump;addr:ULong;size:ULong): LongInt; cdecl; external OLLYDBG name 'Newdumpselection';
-function     Findfiledump(path:PWChar):P_dump; cdecl; external OLLYDBG name 'Findfiledump';
-function     Createdumpwindow(title:PWChar;base:ULong;size:ULong ;path:PWChar;dumptype:ULong;sel0:ULong;sel1:ULong;                   
-                              strname:PWChar): HWND; cdecl; external OLLYDBG name 'Createdumpwindow';
-function     Embeddumpwindow(hw:HWND;pd:P_dump;dumptype:ULong): HWND; cdecl; external OLLYDBG name 'Embeddumpwindow';
-function     Asmindump(hparent:HWND;title:PWChar;pd:P_dump;letter:LongInt;x:LongInt;y:LongInt;fi:LongInt;
-                       mode:LongInt): LongInt; cdecl; external OLLYDBG name 'Asmindump';
-=======
 procedure   Addtolist(addr: ULong; color: Integer; format: PWChar); cdecl; varargs; external OLLYDBG name 'Addtolist';
 
 
@@ -5664,7 +4019,6 @@ function  Createdumpwindow(title: PWChar; base: ULong; size: ULong;
 function  Embeddumpwindow(hw: HWND; pd: p_dump; dumptype: ULong): HWND; cdecl; external OLLYDBG name 'Embeddumpwindow';
 function  Asmindump(hparent: HWND; title: PWChar; pd: p_dump; letter: Integer; x: Integer; y: Integer; fi: Integer;
             mode: Integer): Integer; cdecl; external OLLYDBG name 'Asmindump';
->>>>>>> git  comit
 
 ////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////// SEARCH ////////////////////////////////////
@@ -5714,28 +4068,12 @@ type
 
   p_search = ^t_search;                     // Descriptor of found item
   t_search = packed record
-<<<<<<< HEAD
-  addr:ULong;                   // Address of found item
-  size:ULong;                   // Must be 1
-  itype:ULong;                  // Type of found item, TY_xxx+SE_xxx
-  data:ULong;                   // Mode-related data
-  seqlen:ULong;                 // Length of command sequence
-	end;
-
-function   Comparecommand(cmd:PUChar;cmdsize:ULong;cmdip:ULong;model:P_asmmod;nmodel:LongInt;
-                   pa:PInteger;pb:PInteger;da:P_disasm): ULong; cdecl; external OLLYDBG name 'Comparecommand';
-function   Comparesequence(cmd:PUChar;cmdsize:ULong;cmdip:ULong;
-                   decode:PUChar;model:P_asmmod;nmodel:LongInt;mode:LongInt;
-                   pa:PInteger;pb:PInteger;da:P_disasm;amatch:PULong;
-                   namatch:LongInt): ULong; cdecl; external OLLYDBG name 'Comparesequence';
-=======
     addr: ULong;                            // Address of found item
     size: ULong;                            // Must be 1
     _type: ULong;                           // type of found item, TY_xxx+SE_xxx
     data: ULong;                            // Mode-related data
     seqlen: ULong;                          // Length of command sequence
   end;
->>>>>>> git  comit
 
 function  Comparecommand(cmd: PUChar; cmdsize: ULong; cmdip: ULong; model: p_asmmod; nmodel: Integer;
             pa: PInteger; pb: PInteger; da: p_disasm): ULong; cdecl; external OLLYDBG name 'Comparecommand';
@@ -5803,38 +4141,6 @@ type
 
   p_bphard = ^t_bphard;                     // Hardware breakpoints
   t_bphard = packed record
-<<<<<<< HEAD
-  index:ULong;                         // Index of the breakpoint (0..NHARD-1)
-  dummy:ULong;                         // Must be 1
-  bptype:ULong;                        // Type of the breakpoint, TY_xxx+BP_xxx
-  addr:ULong;                          // Address of breakpoint
-  size:ULong;                          // Size of the breakpoint, bytes
-  fnindex:LongInt;                     // Index of predefined function
-  limit:ULong;                         // Original pass count (0 if not set)
-  count:ULong;                         // Actual pass count
-  actions:ULong;                       // Actions, set of BA_xxx
-  modbase:ULong;                       // Module base, used by .udd only
-  path:array[0..MAXPATH-1] of WChar;   // Full module name, used by .udd only
-	end;
-
-function     Removeint3breakpoint(addr:ULong;bptype:ULong): LongInt; cdecl; external OLLYDBG name 'Removeint3breakpoint';
-function     Setint3breakpoint(addr:ULong;bptype:ULong;fnindex:LongInt;limit:LongInt;count:LongInt;actions:ULong;
-                   condition:PWChar;expression:PWChar;exprtype:PWChar): LongInt; cdecl; external OLLYDBG name 'Setint3breakpoint';
-function     Enableint3breakpoint(addr:ULong;enable:LongInt ): LongInt; cdecl; external OLLYDBG name 'Enableint3breakpoint';
-function     Confirmint3breakpoint(addr:ULong): LongInt; cdecl; external OLLYDBG name 'Confirmint3breakpoint';
-function     Confirmhardwarebreakpoint(addr:ULong): LongInt; cdecl; external OLLYDBG name 'Confirmhardwarebreakpoint';
-function     Confirmint3breakpointlist(addr:PULong;naddr:LongInt): LongInt; cdecl; external OLLYDBG name 'Confirmint3breakpointlist';
-procedure    Wipebreakpointrange(addr0:ULong;addr1:ULong); cdecl; external OLLYDBG name 'Wipebreakpointrange';
-function     Removemembreakpoint(addr:ULong): LongInt; cdecl; external OLLYDBG name 'Removemembreakpoint';
-function     Setmembreakpoint(addr:ULong;size:ULong;bptype:ULong;limit:LongInt;count:LongInt;condition:PWChar;
-                   expression:PWChar;exprtype:PWChar): LongInt; cdecl; external OLLYDBG name 'Setmembreakpoint';
-function     Enablemembreakpoint(addr:ULong;enable:LongInt ): LongInt; cdecl; external OLLYDBG name 'Enablemembreakpoint';
-function     Removehardbreakpoint(index:LongInt): LongInt; cdecl; external OLLYDBG name 'Removehardbreakpoint';
-function     Sethardbreakpoint(index:LongInt;size:ULong;bptype:ULong;fnindex:LongInt;addr:ULong;limit:LongInt;count:LongInt;actions:ULong;
-                   condition:PWChar;expression:PWChar;exprtype:PWChar): LongInt; cdecl; external OLLYDBG name 'Sethardbreakpoint';
-function     Enablehardbreakpoint(index:LongInt;enable:LongInt): LongInt; cdecl; external OLLYDBG name 'Enablehardbreakpoint';
-function     Findfreehardbreakslot(bptype:ULong): LongInt; cdecl; external OLLYDBG name 'Findfreehardbreakslot';
-=======
     index: ULong;                           // Index of the breakpoint (0..NHARD-1)
     dummy: ULong;                           // Must be 1
     _type: ULong;                           // type of the breakpoint, TY_xxx+Bp_xxx
@@ -5869,7 +4175,6 @@ function  Sethardbreakpoint(index: Integer; size: ULong; utype: ULong; fnindex: 
 function  Enablehardbreakpoint(index: Integer; enable: Integer): Integer; cdecl; external OLLYDBG name 'Enablehardbreakpoint';
 function  Findfreehardbreakslot(utype: ULong): Integer; cdecl; external OLLYDBG name 'Findfreehardbreakslot';
 
->>>>>>> git  comit
 
 ////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////// CPU //////////////////////////////////////
@@ -5911,30 +4216,6 @@ type
   // hcurr points record that follows currently selected one.
   p_history = ^t_history;                   // Walk history data
   t_history = packed record
-<<<<<<< HEAD
-  h:array[0..NHISTORY-1] of t_histrec; // Circular buffer with history records
-  holdest:LongInt;                     // Index of oldest valid record in h
-  hnext:LongInt;                       // Index of first free record in h
-  hcurr:LongInt;                       // Index of record following actual in h
-	end;
-
-procedure    Redrawcpudisasm; cdecl; external OLLYDBG name 'Redrawcpudisasm';
-procedure    Redrawcpureg; cdecl; external OLLYDBG name 'Redrawcpureg';
-function     Getcputhreadid: ULong; cdecl; external OLLYDBG name 'Getcputhreadid';
-function     Getcpuruntracebackstep: LongInt; cdecl; external OLLYDBG name 'Getcpuruntracebackstep';
-function     Getcpudisasmdump:P_dump; cdecl; external OLLYDBG name 'Getcpudisasmdump';
-function     Getcpudumpdump:P_dump; cdecl; external OLLYDBG name 'Getcpudumpdump';
-function     Getcpustackdump:P_dump; cdecl; external OLLYDBG name 'Getcpustackdump';
-function     Getcpudisasmselection: ULong; cdecl; external OLLYDBG name 'Getcpudisasmselection';
-function     Getcpudisasmtable:P_table; cdecl; external OLLYDBG name 'Getcpudisasmtable';
-procedure    Addtohistory(ph:P_history;threadid:ULong;dumptype:ULong;
-                   addr:ULong;sel0:ULong;sel1:ULong); cdecl; external OLLYDBG name 'Addtohistory';
-function     Walkhistory(ph:P_history;dir:LongInt;threadid:PULong;dumptype:PULong;addr:PULong;sel0:PULong;
-                   sel1:PULong): LongInt; cdecl; external OLLYDBG name 'Walkhistory';
-function     Checkhistory(ph:P_history;dir:LongInt;isnewest:PInteger): LongInt; cdecl; external OLLYDBG name 'Checkhistory';                         
-procedure    Setcpu(threadid:ULong;asmaddr:ULong;dumpaddr:ULong;
-                   selsize:ULong;stackaddr:ULong;mode:LongInt); cdecl; external OLLYDBG name 'Setcpu';
-=======
     h: array[0..NHISTORY-1] of t_histrec;   // Circular buffer with history records
     holdest: Integer;                       // Index of oldest valid record in h
     hnext: Integer;                         // Index of first free record in h
@@ -5958,7 +4239,6 @@ function  Checkhistory(ph: p_history; dir: Integer; isnewest: PInteger): Integer
 procedure Setcpu(threadid: ULong; asmaddr: ULong; dumpaddr: ULong;
             selsize: ULong; stackaddr: ULong; mode: Integer); cdecl; external OLLYDBG name 'Setcpu';
 
->>>>>>> git  comit
 
 ////////////////////////////////////////////////////////////////////////////////
 /////////////////////// DEBUGGING AND TRACING FUNCTIONS ////////////////////////
@@ -6064,29 +4344,6 @@ type
 
   p_rtprot = ^t_rtprot;                     // Run trace protocol condition
   t_rtprot = packed record
-<<<<<<< HEAD
-  tracelogtype:LongInt;                                // Commands to protocol, one of RTL_xxx
-  memranges:LongInt;                                   // 0x1: range 1, 0x2: range 2 active
-  memaccess:array[0..NRANGE-1] of LongInt;             // Type of access (0:R, 1:W, 2:R/W)
-  memrange0:array[0..NRANGE-1] of ULong;               // Start of memory range
-  memrange1:array[0..NRANGE-1] of ULong ;              // End of memory range
-  rangeactive:LongInt;                                 // Log only commands in the range
-  range:array[0..NRTPROT-1] of t_range;                // Set of EIP ranges to protocol
-	end;
-
-procedure    Suspendallthreads; cdecl; external OLLYDBG name 'Suspendallthreads';
-procedure    Resumeallthreads; cdecl; external OLLYDBG name 'Resumeallthreads';
-function     Pauseprocess: LongInt; cdecl; external OLLYDBG name 'Pauseprocess';
-function     Closeprocess(confirm:LongInt): LongInt; cdecl; external OLLYDBG name 'Closeprocess';
-function     Detachprocess: LongInt; cdecl; external OLLYDBG name 'Detachprocess';
-function     _Getlasterror(pthr:P_thread;error:PULong;s:PWChar): LongInt; cdecl; external OLLYDBG name 'Getlasterror';
-function     Followcall(addr:ULong): ULong; cdecl; external OLLYDBG name 'Followcall';
-function     Run(status:t_status;pass:LongInt): LongInt; cdecl; external OLLYDBG name 'Run';
-function     Checkfordebugevent: LongInt; cdecl; external OLLYDBG name 'Checkfordebugevent';
-function     Addprotocolrange(addr0:ULong;addr1:ULong): LongInt; cdecl; external OLLYDBG name 'Addprotocolrange';
-function     Getruntrace(nback:LongInt;preg:P_reg;cmd:UChar): LongInt; cdecl; external OLLYDBG name 'Getruntrace';
-function     Findruntracerecord(addr0:ULong;addr1:ULong): LongInt; cdecl; external OLLYDBG name 'Findruntracerecord';
-=======
     tracelogtype: Integer;                  // Commands to protocol, one of RTL_xxx
     memranges: Integer;                     // 0x1: range 1, 0x2: range 2 active
     memaccess: array[0..NRANGE-1] of Integer; // type of access (0; R, 1; W, 2; R/W)
@@ -6109,7 +4366,6 @@ function  Addprotocolrange(addr0: ULong; addr1: ULong): Integer; cdecl; external
 function  Getruntrace(nback: Integer; preg: p_reg; cmd: UChar): Integer; cdecl; external OLLYDBG name 'Getruntrace';
 function  Findruntracerecord(addr0: ULong; addr1: ULong): Integer; cdecl; external OLLYDBG name 'Findruntracerecord';
 
->>>>>>> git  comit
 
 ////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////// LIST OF GUIDS /////////////////////////////////
@@ -6119,11 +4375,6 @@ const
 function Getguidname(data: UChar; ndata: ULong; name: PWChar): Integer; cdecl; external OLLYDBG name 'Getguidname';
 function Isguid(addr: ULong; name: PWChar; nname: Integer): Integer; cdecl; external OLLYDBG name 'Isguid';
 
-<<<<<<< HEAD
-function     Getguidname(data:UChar;ndata:ULong;name:PWChar): LongInt; cdecl; external OLLYDBG name 'Getguidname';
-function     Isguid(addr:ULong;name:PWChar;nname:LongInt): LongInt; cdecl; external OLLYDBG name 'Isguid';
-=======
->>>>>>> git  comit
 
 ////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////// SOURCE CODE //////////////////////////////////
@@ -6143,27 +4394,6 @@ type
 
   p_source = ^t_source;                     // Descriptor of source file
   t_source = packed record
-<<<<<<< HEAD
-  addr:ULong;                         // Module base plus file index
-  size:ULong;                         // Dummy parameter, must be 1
-  stype:ULong;                        // Type, TY_xxx+SRC_xxx
-  path:array[0..MAXPATH-1] of WChar;  // File path
-  nameoffs:LongInt;                   // Name offset in path, characters
-  text:PAnsiChar;                         // Source code in UTF-8 format or NULL
-  line:P_srcline;                     // nline+1 line descriptors or NULL
-  nline:LongInt;                      // Number of lines (0: as yet unknown)
-  extent:P_srcext;                    // List of code extents
-  maxextent:LongInt;                  // Capacity of extent table
-  nextent:LongInt;                    // Current number of extents
-  lastline:LongInt;                   // Last selected line
-  lastoffset:LongInt;                 // Last topmost visible line
-	end;
-
-function     Findsource(base:ULong;path:PWChar): P_source; cdecl; external OLLYDBG name 'Findsource';
-function     Getsourceline(base:ULong;path:PWChar;line:LongInt;skipspaces:LongInt;text:PWChar;fname:PWChar;extent:PP_srcext;
-						               nextent:PInteger): LongInt; cdecl; external OLLYDBG name 'Getsourceline';
-function     Showsourcecode(base:ULong;path:PWChar;line:LongInt): LongInt; cdecl; external OLLYDBG name 'Showsourcecode';
-=======
     addr: ULong;                            // Module base plus file index
     size: ULong;                            // Dummy parameter, must be 1
     _type: ULong;                           // type, TY_xxx+SRC_xxx
@@ -6185,7 +4415,6 @@ function  Getsourceline(base: ULong; path: PWChar; line: Integer; skipspaces: In
 function  Showsourcecode(base: ULong; path: PWChar; line: Integer): Integer; cdecl; external OLLYDBG name 'Showsourcecode';
 
 
->>>>>>> git  comit
 ////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////// DEBUGGEE ///////////////////////////////////
 const
@@ -6224,186 +4453,9 @@ type
 // ATTENTION, never, ever change these variables directly! Either use plugin
 // API or keep your hands off! Names of variables are preceded with underscore.
 
-<<<<<<< HEAD
-t_oddata = record
-	///////////////////////////////// DISASSEMBLER /////////////////////////////////
-	bincmd:PULong;                // List of 80x86 commands
-	regname:PULong;               // Names of 8/16/32-bit registers
-	segname:PULong;               // Names of segment registers
-	fpuname:PULong;               // FPU regs (ST(n) and STn forms)
-	mmxname:PULong;               // Names of MMX/3DNow! registers
-	ssename:PULong;               // Names of SSE registers
-	crname:PULong;                // Names of control registers
-	drname:PULong;                // Names of debug registers
-	sizename:PULong;              // Data size keywords
-	sizekey:PULong;               // Keywords for immediate data
-	sizeatt:PULong;               // Keywords for immediate data, AT&T
-	/////////////////////////////// OLLYDBG SETTINGS ///////////////////////////////
-	ollyfile:PULong;              // Path to OllyDbg
-	ollydir:PULong;               // OllyDbg directory w/o backslash
-	systemdir:PULong;             // Windows system directory
-	plugindir:PULong;             // Plugin data dir without backslash
-	hollyinst:PULong;             // Current OllyDbg instance
-	hwollymain:PULong;            // Handle of the main OllyDbg window
-	hwclient:PULong;              // Handle of MDI client or NULL
-	ottable:PULong;               // Class of table windows
-	cpufeatures:PULong;           // CPUID feature information
-	ischild:PULong;               // Whether child debugger
-	asciicodepage:PULong;         // Code page to display ASCII dumps
-	                              // Requires <stdio.h>
-	tracefile:PULong;             // System log file or NULL
-	restorewinpos:PULong;         // Restore window position & appearance
-	////////////////////////////// OLLYDBG STRUCTURES //////////////////////////////
-	font:PULong;                  // Fixed fonts used in table windows
-	sysfont:PULong;               // Proportional system font
-	titlefont:PULong;             // Proportional, 2x height of sysfont
-	fixfont:PULong;               // Fixed system font
-	color:PULong;                 // Colours used by OllyDbg
-	scheme:PULong;                // Colour schemes used in table windows
-	hilite:PULong;                // Colour schemes used for highlighting
-	/////////////////////////////////// DEBUGGEE ///////////////////////////////////
-	executable:PULong;            // Path to main (.exe) file
-	arguments:PULong;             // Command line passed to debuggee
-	netdbg:PULong;                // .NET debugging active
-	rundll:PULong;                // Debugged file is a DLL
-	process:PULong;               // Handle of Debuggee or NULL
-	processid:PULong;             // Process ID of Debuggee or 0
-	mainthreadid:PULong;          // Thread ID of main thread or 0
-	run:PULong;                   // Run status of debugged application
-	skipsystembp:PULong;          // First system INT3 not yet hit
-	debugbreak:PULong;            // Address of DebugBreak() in Debuggee
-	dbgbreakpoint:PULong;         // Address of DbgBreakPoint() in Debuggee
-	kiuserexcept:PULong;          // Address of KiUserExceptionDispatcher()
-	zwcontinue:PULong;            // Address of ZwContinue() in Debuggee
-	uefilter:PULong;              // Address of UnhandledExceptionFilter()
-	ntqueryinfo:PULong;           // Address of NtQueryInformationProcess()
-	corexemain:PULong;            // Address of MSCOREE:_CorExeMain()
-	peblock:PULong;               // Address of PE block in Debuggee
-	kusershareddata:PULong;       // Address of KUSER_SHARED_DATA
-	userspacelimit:PULong;        // Size of virtual process memory
-	rtcond:PULong;                // Run trace break condition
-	rtprot:PULong;                // Run trace protocol condition
-	///////////////////////////////// DATA TABLES //////////////////////////////////
-	list:PULong;                  // List descriptor
-	premod:PULong;                // Preliminary module data
-	module:PULong;                // Loaded modules
-	aqueue:PULong;                // Modules that are not yet analysed
-	thread:PULong;                // Active threads
-	memory:PULong;                // Allocated memory blocks
-	win:PULong;                   // List of windows
-	bpoint:PULong;                // INT3 breakpoints
-	bpmem:PULong;                 // Memory breakpoints
-	bppage:PULong;                // Memory pages with changed attributes
-	bphard:PULong;                // Hardware breakpoints
-	watch:PULong;                 // Watch expressions
-	patch:PULong;                 // List of patches from previous runs
-	procdata:PULong;              // Descriptions of analyzed procedures
-	source:PULong;                // List of source files
-	srccode:PULong;               // Source code
-end;
-(*
-t_oddataRS = record
-	///////////////////////////////// DISASSEMBLER /////////////////////////////////
-	bincmd:t_bincmd;              // List of 80x86 commands
-	regname:PWCHAR;               // Names of 8/16/32-bit registers
-	segname:PWCHAR;               // Names of segment registers
-	fpuname:PWCHAR;               // FPU regs (ST(n) and STn forms)
-	mmxname:PWCHAR;               // Names of MMX/3DNow! registers
-	ssename:PWCHAR;               // Names of SSE registers
-	crname:PWCHAR;                // Names of control registers
-	drname:PWCHAR;                // Names of debug registers
-	sizename:PWCHAR;              // Data size keywords
-	sizekey:PWCHAR;               // Keywords for immediate data
-	sizeatt:PWCHAR;               // Keywords for immediate data, AT&T
-	/////////////////////////////// OLLYDBG SETTINGS ///////////////////////////////
-	ollyfile:WCHAR;               // Path to OllyDbg
-	ollydir:WCHAR;                // OllyDbg directory w/o backslash
-	systemdir:WCHAR;              // Windows system directory
-	plugindir:WCHAR;              // Plugin data dir without backslash
-	hollyinst:HINSTANCE;          // Current OllyDbg instance
-	hwollymain:HWND;              // Handle of the main OllyDbg window
-	hwclient:HWND;                // Handle of MDI client or NULL
-	ottable:WCHAR;                // Class of table windows
-	cpufeatures:ULong;            // CPUID feature information
-	ischild:Integer;              // Whether child debugger
-	asciicodepage:Integer;        // Code page to display ASCII dumps                             
-	                              // Requires <stdio.h>
-	tracefile:Pointer;            // System log file or NULL
-	restorewinpos:Integer;        // Restore window position & appearance
-	////////////////////////////// OLLYDBG STRUCTURES //////////////////////////////
-	font:t_font;                  // Fixed fonts used in table windows
-	sysfont:t_font;               // Proportional system font
-	titlefont:t_font;             // Proportional, 2x height of sysfont
-	fixfont:t_font;               // Fixed system font
-	color:COLORREF;               // Colours used by OllyDbg
-	scheme:t_scheme;              // Colour schemes used in table windows
-	hilite:t_scheme;              // Colour schemes used for highlighting
-	/////////////////////////////////// DEBUGGEE ///////////////////////////////////
-	executable:WCHAR;             // Path to main (.exe) file
-	arguments:WCHAR;              // Command line passed to debuggee
-	netdbg:int;                   // .NET debugging active
-	rundll:int;                   // Debugged file is a DLL
-	process:HANDLE;               // Handle of Debuggee or NULL
-	processid:ulong;              // Process ID of Debuggee or 0
-	mainthreadid:ulong;           // Thread ID of main thread or 0
-	run:t_run;                    // Run status of debugged application
-	skipsystembp:int;             // First system INT3 not yet hit
-	debugbreak:ulong;             // Address of DebugBreak() in Debuggee
-	dbgbreakpoint:ulong;          // Address of DbgBreakPoint() in Debuggee
-	kiuserexcept:ulong;           // Address of KiUserExceptionDispatcher()
-	zwcontinue:ulong;             // Address of ZwContinue() in Debuggee
-	uefilter:ulong;               // Address of UnhandledExceptionFilter()
-	ntqueryinfo:ulong;            // Address of NtQueryInformationProcess()
-	corexemain:ulong;             // Address of MSCOREE:_CorExeMain()
-	peblock:ulong;                // Address of PE block in Debuggee
-	kusershareddata:ulong;        // Address of KUSER_SHARED_DATA
-	userspacelimit:ulong;         // Size of virtual process memory
-	rtcond:t_rtcond;              // Run trace break condition
-	rtprot:t_rtprot;              // Run trace protocol condition
-	///////////////////////////////// DATA TABLES //////////////////////////////////
-	list:t_table;                 // List descriptor
-	premod:t_sorted;              // Preliminary module data
-	module:t_table;               // Loaded modules
-	aqueue:t_sorted;              // Modules that are not yet analysed
-	thread:t_table;               // Active threads
-	memory:t_table;               // Allocated memory blocks
-	win:t_table;                  // List of windows
-	bpoint:t_table{t_bpoint};     // INT3 breakpoints
-	bpmem:t_table{t_bpmem};       // Memory breakpoints
-	bppage:t_table{t_bppage};     // Memory pages with changed attributes
-	bphard:t_table{t_bphard};     // Hardware breakpoints
-	watch:t_table;                // Watch expressions
-	patch:t_table;                // List of patches from previous runs
-	procdata:t_sorted;            // Descriptions of analyzed procedures
-	source:t_table;               // List of source files
-	srccode:t_table;              // Source code
-end;
-*)
-////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////// PLUGIN EXPORTS ////////////////////////////////
-Const
-// Relatively infrequent events passed to ODBG2_Pluginnotify().
-PN_NEWPROC     =1;              // New process is created
-PN_ENDPROC     =2;              // Process is terminated
-PN_NEWTHR      =3;              // New thread is created
-PN_ENDTHR      =4;              // Thread is terminated
-PN_PREMOD      =5;              // New module is reported by Windows
-PN_NEWMOD      =6;              // New module is added to the table
-PN_ENDMOD      =7;              // Module is removed from the memory
-PN_STATUS      =8;              // Execution status has changed
-PN_REMOVE      =16;             // OllyDbg removes analysis from range
-PN_RUN         =24;             // User continues code execution
-
-// Flags returned by ODBG2_Pluginexception().
-PE_IGNORED     =$00000000;      // Plugin does not process exception
-PE_CONTINUE    =$00000001;      // Exception by plugin, continue
-PE_STEP        =$00000002;      // Exception by plugin, execute command
-PE_PAUSE       =$00000004;      // Exception by plugin, pause program
-=======
 type
   p_bincmd_export = ^t_bincmd_export;
   t_bincmd_export = array[0..0] of t_bincmd;
->>>>>>> git  comit
 
   p_regname_export = ^t_regname_export;
   t_regname_export = array[0..2, 0..NREG-1] of PWChar;
@@ -6436,90 +4488,6 @@ type
   t_hilite_export = array[0..NHILITE] of t_scheme;
 
 var
-<<<<<<< HEAD
-	oddt: t_oddata;
-Begin
-  try
-    oddt.bincmd:= GetProcAddress(odhmod,'_bincmd');                   // List of 80x86 commands
-	  oddt.regname:= GetProcAddress(odhmod,'_regname');                 // Names of 8/16/32-bit registers
-    oddt.segname:= GetProcAddress(odhmod,'_segname');                 // Names of segment registers
-	  oddt.fpuname:= GetProcAddress(odhmod,'_fpuname');                 // FPU regs (ST(n) and STn forms)
-    oddt.mmxname:= GetProcAddress(odhmod,'_mmxname');                 // Names of MMX/3DNow! registers
-	  oddt.ssename:= GetProcAddress(odhmod,'_ssename');                 // Names of SSE registers
-	  oddt.crname:= GetProcAddress(odhmod,'_crname');                   // Names of control registers
-	  oddt.drname:= GetProcAddress(odhmod,'_drname');                   // Names of debug registers
-	  oddt.sizename:= GetProcAddress(odhmod,'_sizename');               // Data size keywords
-	  oddt.sizekey:= GetProcAddress(odhmod,'_sizekey');                 // Keywords for immediate data
-	  oddt.sizeatt:= GetProcAddress(odhmod,'_sizeatt');                 // Keywords for immediate data, AT&T
-	  /////////////////////////////// OLLYDBG SETTINGS ///////////////////////////////
-	  oddt.ollyfile:= GetProcAddress(odhmod,'_ollyfile');               // Path to OllyDbg
-	  oddt.ollydir:= GetProcAddress(odhmod,'_ollydir');                 // OllyDbg directory w/o backslash
-	  oddt.systemdir:= GetProcAddress(odhmod,'_systemdir');             // Windows system directory
-	  oddt.plugindir:= GetProcAddress(odhmod,'_plugindir');             // Plugin data dir without backslash
-	  oddt.hollyinst:= GetProcAddress(odhmod,'_hollyinst');             // Current OllyDbg instance
-	  oddt.hwollymain:= GetProcAddress(odhmod,'_hwollymain');           // Handle of the main OllyDbg window
-	  oddt.hwclient:= GetProcAddress(odhmod,'_hwclient');               // Handle of MDI client or NULL
-	  oddt.ottable:= GetProcAddress(odhmod,'_ottable');                 // Class of table windows
-	  oddt.cpufeatures:= GetProcAddress(odhmod,'_cpufeatures');         // CPUID feature information
-	  oddt.ischild:= GetProcAddress(odhmod,'_ischild');                 // Whether child debugger
-	  oddt.asciicodepage:= GetProcAddress(odhmod,'_asciicodepage');     // Code page to display ASCII dumps
-	                                                                    // Requires <stdio.h>
-	  oddt.tracefile:= GetProcAddress(odhmod,'_tracefile');             // System log file or NULL
-	  oddt.restorewinpos:= GetProcAddress(odhmod,'_restorewinpos');     // Restore window position & appearance
-	  ////////////////////////////// OLLYDBG STRUCTURES //////////////////////////////
-	  oddt.font:= GetProcAddress(odhmod,'_font');                       // Fixed fonts used in table windows
-	  oddt.sysfont:= GetProcAddress(odhmod,'_sysfont');                 // Proportional system font
-	  oddt.titlefont:= GetProcAddress(odhmod,'_titlefont');             // Proportional, 2x height of sysfont
-	  oddt.fixfont:= GetProcAddress(odhmod,'_fixfont');                 // Fixed system font
-	  oddt.color:= GetProcAddress(odhmod,'_color');                     // Colours used by OllyDbg
-	  oddt.scheme:= GetProcAddress(odhmod,'_scheme');                   // Colour schemes used in table windows
-	  oddt.hilite:= GetProcAddress(odhmod,'_');                         // Colour schemes used for highlighting
-	  /////////////////////////////////// DEBUGGEE ///////////////////////////////////
-	  oddt.executable:= GetProcAddress(odhmod,'_executable');           // Path to main (.exe) file
-	  oddt.arguments:= GetProcAddress(odhmod,'_arguments');             // Command line passed to debuggee
-	  oddt.netdbg:= GetProcAddress(odhmod,'_netdbg');                   // .NET debugging active
-	  oddt.rundll:= GetProcAddress(odhmod,'_rundll');                   // Debugged file is a DLL
-	  oddt.process:= GetProcAddress(odhmod,'_process');                 // Handle of Debuggee or NULL
-	  oddt.processid:= GetProcAddress(odhmod,'_processid');             // Process ID of Debuggee or 0
-	  oddt.mainthreadid:= GetProcAddress(odhmod,'_mainthreadid');       // Thread ID of main thread or 0
-	  oddt.run:= GetProcAddress(odhmod,'_run');                         // Run status of debugged application
-	  oddt.skipsystembp:= GetProcAddress(odhmod,'_skipsystembp');       // First system INT3 not yet hit
-	  oddt.debugbreak:= GetProcAddress(odhmod,'_debugbreak');           // Address of DebugBreak() in Debuggee
-	  oddt.dbgbreakpoint:= GetProcAddress(odhmod,'_dbgbreakpoint');     // Address of DbgBreakPoint() in Debuggee
-	  oddt.kiuserexcept:= GetProcAddress(odhmod,'_kiuserexcept');       // Address of KiUserExceptionDispatcher()
-	  oddt.zwcontinue:= GetProcAddress(odhmod,'_zwcontinue');           // Address of ZwContinue() in Debuggee
-	  oddt.uefilter:= GetProcAddress(odhmod,'_uefilter');               // Address of UnhandledExceptionFilter()
-	  oddt.ntqueryinfo:= GetProcAddress(odhmod,'_ntqueryinfo');         // Address of NtQueryInformationProcess()
-	  oddt.corexemain:= GetProcAddress(odhmod,'_corexemain');           // Address of MSCOREE:_CorExeMain()
-	  oddt.peblock:= GetProcAddress(odhmod,'_peblock');                 // Address of PE block in Debuggee
-	  oddt.kusershareddata:= GetProcAddress(odhmod,'_kusershareddata'); // Address of KUSER_SHARED_DATA
-	  oddt.userspacelimit:= GetProcAddress(odhmod,'_userspacelimit');   // Size of virtual process memory
-	  oddt.rtcond:= GetProcAddress(odhmod,'_rtcond');                   // Run trace break condition
-	  oddt.rtprot:= GetProcAddress(odhmod,'_rtprot');                   // Run trace protocol condition
-	  ///////////////////////////////// DATA TABLES //////////////////////////////////
-	  oddt.list:= GetProcAddress(odhmod,'_list');                       // List descriptor
-	  oddt.premod:= GetProcAddress(odhmod,'_premod');                   // Preliminary module data
-	  oddt.module:= GetProcAddress(odhmod,'_module');                   // Loaded modules
-	  oddt.aqueue:= GetProcAddress(odhmod,'_aqueue');                   // Modules that are not yet analysed
-	  oddt.thread:= GetProcAddress(odhmod,'_thread');                   // Active threads
-	  oddt.memory:= GetProcAddress(odhmod,'_memory');                   // Allocated memory blocks
-	  oddt.win:= GetProcAddress(odhmod,'_win');                         // List of windows
-	  oddt.bpoint:= GetProcAddress(odhmod,'_bpoint');                   // INT3 breakpoints
-	  oddt.bpmem:= GetProcAddress(odhmod,'_bpmem');                     // Memory breakpoints
-	  oddt.bppage:= GetProcAddress(odhmod,'_bppage');                   // Memory pages with changed attributes
-	  oddt.bphard:= GetProcAddress(odhmod,'_bphard');                   // Hardware breakpoints
-	  oddt.watch:= GetProcAddress(odhmod,'_watch');                     // Watch expressions
-	  oddt.patch:= GetProcAddress(odhmod,'_patch');                     // List of patches from previous runs
-	  oddt.procdata:= GetProcAddress(odhmod,'_procdata');               // Descriptions of analyzed procedures
-	  oddt.source:= GetProcAddress(odhmod,'_source');                   // List of source files
-	  oddt.srccode:= GetProcAddress(odhmod,'_srccode');                 // Source code
-    Result:= oddt;
-  except
-    FillChar(oddt,SizeOf(oddt),0);
-    Result:= oddt;
-  end;
-End;
-=======
 
   ///////////////////////////////// DISASSEMBLER /////////////////////////////////
 
@@ -6638,7 +4606,6 @@ const
 procedure LogError(err: Boolean; const pwzMsg: PWChar);
 
 implementation
->>>>>>> git  comit
 
 function Iscall;
 begin
@@ -6944,30 +4911,6 @@ procedure ODBG2_Pluginuddrecord(pmod: p_module; ismainmodule: Integer; tag: ULon
 procedure ODBG2_Pluginreset; cdecl;
 function  ODBG2_Pluginclose: Integer; cdecl;
 procedure ODBG2_Plugindestroy; cdecl;
-<<<<<<< HEAD
-
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////// NOTE ////////////////////////////////////
-//1.function     StrCmpW                    //not exist in ollydbg.exe
-//2.function     Message                    //change to: _Message
-//3.function     Disasm                     //change to: _Disasm
-//4.function     Getlasterror               //change to: _Getlasterror
-//5.function     Readfile                   //change to: _Readfile
-//6.
-//...
-// Use oddata:
-// Example:
-//  function  ODBG2_Plugininit: LongInt; cdecl;
-//  Begin
-//    oddata:= Getoddata(GetModuleHandleA(nil)); // if not oddata = nil;
-//    MessageBoxW(oddata.hwollymain^,'lpText','lpCaption',MB_OK); // For test
-//    Result:= 0;
-//  End;
-//
-////////////////////////////////////////////////////////////////////////////////
-*)
-
-=======
 *)
 
 initialization
@@ -6978,5 +4921,4 @@ initialization
 {$ENDIF ~DEBUG}
   end;
 
->>>>>>> git  comit
 end.
