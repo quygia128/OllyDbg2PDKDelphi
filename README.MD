@@ -4,7 +4,7 @@
 
 OllyDbg2 PDK For Delphi
 Ported By: quygia128
-Plugin interface: v2.01.0001(H) - OllyDbg 2.01.4(I)
+Plugin interface: v2.01.0001(H) - OllyDbg 201.4(I)
 
 Last edit on: 04.23.2014 by TQN(ThangCuAnh)
 
