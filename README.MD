@@ -1,8 +1,8 @@
 ===========================
-= OllyDbg2_PDK_For_Delphi =
+= OllyDbg2 PDK For Delphi =
 ===========================
 
-OllyDbg2_PDK_4_Delphi
+OllyDbg2 PDK For Delphi
 Ported By: quygia128
 Plugin interface: v2.01.0001(H) - OllyDbg 2.01.4(I)
 
